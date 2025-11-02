@@ -1,0 +1,218 @@
+/* General */
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+/* Títulos */
+h1, h2, h3, h4, h5, h6 {
+    color: #000000 !important;
+    font-weight: bold;
+}
+h2 {
+    border-bottom: 2px solid #7a5c44;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Tarjetas */
+.card {
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Redondeado */
+    overflow: hidden;
+    background-color: #fff;
+    transition: transform 0.2s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.15);
+}
+.card-title {
+    color: #000000; /* Cambiado a negro */
+}
+.card-footer {
+    background-color: #f8f1e7;
+    border-top: none;
+    font-size: 0.9rem;
+}
+
+/* Botones redondeados */
+.btn-dark {
+    display: block;
+    margin: 0 auto;
+    width: fit-content;
+    padding: 8px 18px;
+    background-color: #5a3e36;
+    border: none;
+    border-radius: 10px !important;
+    transition: 0.3s;
+}
+.btn-dark:hover {
+    background-color: #7a5c44;
+    color: #fff;
+}
+
+/* Badges de categorías con colores específicos */
+.badge.bg-fitness {
+    background-color: #4a7b9d !important;
+    color: white;
+    border-radius: 15px;
+}
+.badge.bg-nutricion {
+    background-color: #5a9367 !important;
+    color: white;
+    border-radius: 15px;
+}
+.badge.bg-entrenamiento {
+    background-color: #c44536 !important;
+    color: white;
+    border-radius: 15px;
+}
+.badge.bg-promociones {
+    background-color: #e6af2e !important;
+    color: white;
+    border-radius: 15px;
+}
+.badge.bg-general {
+    background-color: #7a5c44 !important;
+    color: white;
+    border-radius: 15px;
+}
+
+
+/* Estilos para la sección de comentarios */
+.card-body.p-4 {
+    padding: 2rem !important;
+}
+
+/* Avatar */
+.bg-secondary.rounded-circle {
+    background-color: #7a5c44 !important;
+    border: 2px solid #dec19e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Mejor espaciado entre avatar y burbuja */
+.flex-grow-1.ms-2 {
+    margin-left: 0.75rem !important;
+}
+
+/* Burbuja de comentario mejorada */
+.comentario-burbuja {
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-left: 0.5rem;
+}
+
+.comentario-burbuja::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 15px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid #e9ecef;
+}
+
+/* Espaciado general mejorado */
+.comentario-item {
+    animation: fadeIn 0.5s ease-in;
+    padding: 0.5rem 0;
+}
+
+/* Contenedor principal con mejor espaciado */
+.comentarios-lista {
+    margin-top: 1.5rem;
+}
+
+/* Estilos para paginación */
+.pagination .page-link {
+    color: #5a3e36;
+    background-color: #f8f1e7;
+    border-radius: 5px;
+    margin: 0 2px;
+}
+
+.pagination .page-link:hover {
+    background-color: #7a5c44;
+    color: #fff;
+    border-color: #5a3e36;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #5a3e36;
+    border-color: #5a3e36;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #f8f1e7;
+    border-color: #7a5c44;
+}
+
+/* Estilos para selects */
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #7a5c44;
+}
+
+.form-select:focus {
+    border-color: #5a3e36;
+    box-shadow: 0 0 0 0.2rem rgba(90, 62, 54, 0.25);
+}
+
+/* Estilos para enlaces de posts destacados */
+.card.shadow-sm {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.card.shadow-sm:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Estilos para el archivo Candidatos*/
+.estadisticas-rapidas {
+    padding: 0;
+    margin: 0;
+}
+
+.estadisticas-rapidas .list-inline-item {
+    display: inline-block;
+    text-align: center;
+    margin: 0 10px; /* Espaciado horizontal */
+}
+
+.estadisticas-rapidas .list-inline-item strong {
+    font-size: 1rem; /* Número más chico */
+    color: #000; /* Texto negro */
+}
+
+.estadisticas-rapidas .list-inline-item small {
+    font-size: 0.75rem; /* Texto más chico */
+    color: #000; /* Texto negro */
+}
+.acciones-candidato button {
+    font-size: 0.8rem; /* más compacto */
+    color: #000;       /* texto negro */
+    background-color: #fff;
+    border-color: #000;
+}
+
+.acciones-candidato button i {
+    margin-right: 4px; /* separación icono-texto */
+}
+
+.acciones-candidato li.d-flex button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+

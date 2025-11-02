@@ -1,0 +1,294 @@
+/* modo-oscuro-corregido.css - Versión corregida */
+@import url('modo_oscuro.css');
+
+[data-theme="dark"] {
+  /* Colores base para modo oscuro */
+  --bg-dark: #1a1a1a;
+  --bg-card: #2d2d2d;
+  --text-light: #e9ecef;
+  --text-muted: #adb5bd;
+  --border-dark: #444444;
+  --primary-brown: #5a3e36;
+  --secondary-brown: #7a5c44;
+  --accent-beige: #dec19e;
+}
+
+/* Solo cambiamos fondos y textos base */
+[data-theme="dark"] body {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* CARDS - Mantener estilo pero con colores oscuros */
+[data-theme="dark"] .card {
+  background-color: var(--bg-card);
+  border-color: var(--border-dark);
+  color: var(--text-light);
+}
+
+/* NAVBAR - Igual en cabecera y pie */
+[data-theme="dark"] .navbar-light.bg-light {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-dark);
+}
+
+[data-theme="dark"] .bg-body-tertiary {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-dark);
+}
+
+/* PIE DE PAGINA - Igual que la cabecera */
+[data-theme="dark"] footer {
+  background-color: var(--bg-card) !important;
+  color: var(--text-light) !important;
+  border-top: 1px solid var(--border-dark);
+}
+
+[data-theme="dark"] footer .navbar-nav .nav-link {
+  color: var(--text-light) !important;
+}
+
+[data-theme="dark"] footer .navbar-nav .nav-link:hover {
+  color: var(--accent-beige) !important;
+}
+
+/* TÍTULOS - Que resalten con colores originales */
+[data-theme="dark"] .titulos,
+[data-theme="dark"] .display-5,
+[data-theme="dark"] .h3,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: var(--accent-beige) !important; /* Beige para resaltar */
+}
+
+[data-theme="dark"] .fs-4,
+[data-theme="dark"] .text-secondary {
+  color: var(--accent-beige) !important; /* Beige para subtítulos */
+}
+
+/* Títulos específicos de secciones */
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .card h3,
+[data-theme="dark"] .card h5 {
+  color: var(--accent-beige) !important;
+}
+
+/* ENLACES - Mantener visibilidad */
+[data-theme="dark"] a {
+  color: var(--accent-beige) !important;
+}
+
+[data-theme="dark"] a:hover {
+  color: var(--secondary-brown) !important;
+}
+
+[data-theme="dark"] .text-dark {
+  color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* BOTONES - Mantener colores originales */
+[data-theme="dark"] .btn-dark {
+  background-color: var(--primary-brown) !important;
+  border-color: var(--primary-brown) !important;
+  color: white !important;
+}
+
+[data-theme="dark"] .btn-dark:hover {
+  background-color: var(--secondary-brown) !important;
+  border-color: var(--secondary-brown) !important;
+}
+
+/* FORMULARIOS */
+[data-theme="dark"] .form-control {
+  background-color: var(--bg-card);
+  border-color: var(--border-dark);
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .form-control:focus {
+  background-color: var(--bg-card);
+  border-color: var(--accent-beige);
+  color: var(--text-light);
+  box-shadow: 0 0 0 0.2rem rgba(222, 193, 158, 0.25);
+}
+
+[data-theme="dark"] .form-label {
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .input-group-text {
+  background-color: var(--bg-dark);
+  border-color: var(--border-dark);
+  color: var(--text-light);
+}
+
+/* ALERTAS - Mantener colores pero adaptar texto */
+[data-theme="dark"] .alert {
+  background-color: var(--bg-card);
+  border-color: var(--border-dark);
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .alert-success {
+  background-color: rgba(25, 135, 84, 0.2) !important;
+  border-color: #198754 !important;
+  color: #a3cfbb !important;
+}
+
+[data-theme="dark"] .alert-warning {
+  background-color: rgba(255, 193, 7, 0.2) !important;
+  border-color: #ffc107 !important;
+  color: #ffeaa7 !important;
+}
+
+[data-theme="dark"] .alert-danger {
+  background-color: rgba(220, 53, 69, 0.2) !important;
+  border-color: #dc3545 !important;
+  color: #f1aeb5 !important;
+}
+
+[data-theme="dark"] .alert-info {
+  background-color: rgba(13, 202, 240, 0.2) !important;
+  border-color: #0dcaf0 !important;
+  color: #9eeaf9 !important;
+}
+
+/* PRODUCT CARDS */
+[data-theme="dark"] .producto-card {
+  background-color: var(--bg-card);
+}
+
+[data-theme="dark"] .producto-card:hover {
+  background-color: #363636;
+}
+
+/* PRECIOS Y OFERTAS */
+[data-theme="dark"] .text-decoration-line-through {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .fw-bold.text-dark {
+  color: var(--text-light) !important;
+}
+
+/* BADGES */
+[data-theme="dark"] .badge.bg-success {
+  background-color: #198754 !important;
+}
+
+/* TOGGLE SWITCH */
+.theme-toggle-container {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: var(--bg-card);
+  border-color: var(--border-dark);
+  color: var(--text-light);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background-color: #ddd;
+  border-radius: 10px;
+}
+
+[data-theme="dark"] .toggle-switch {
+  background-color: #555;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--primary-brown);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .toggle-slider {
+  transform: translateX(20px);
+  background-color: var(--accent-beige);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .theme-toggle-container {
+    top: 80px;
+    right: 10px;
+  }
+  
+  .theme-toggle {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ESTILOS PARA ENLACE ACTIVO */
+.nav-link.active {
+    background-color: var(--primary-brown, #5a3e36) !important;
+    color: white !important;
+    border-radius: 5px;
+    padding: 8px 15px !important;
+    font-weight: bold;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(90, 62, 54, 0.3);
+}
+
+/* Efecto hover para enlaces activos */
+.nav-link.active:hover {
+    background-color: var(--secondary-brown, #7a5c44) !important;
+    color: white !important;
+    transform: scale(1.08);
+}
+
+/* Estilos específicos para modo oscuro */
+[data-theme="dark"] .nav-link.active {
+    background-color: var(--accent-beige, #dec19e) !important;
+    color: var(--primary-brown, #5a3e36) !important;
+    box-shadow: 0 2px 8px rgba(222, 193, 158, 0.3);
+}
+
+[data-theme="dark"] .nav-link.active:hover {
+    background-color: #e8d4b8 !important;
+    color: var(--primary-brown, #5a3e36) !important;
+}
+
+/* Transición suave */
+.nav-link {
+    transition: all 0.3s ease;
+    padding: 8px 15px !important;
+    border-radius: 5px;
+}
+
+.nav-link:not(.active):hover {
+    background-color: rgba(90, 62, 54, 0.1);
+    transform: translateY(-1px);
+}

@@ -1,0 +1,549 @@
+/* ===== ESTILOS GENERALES DE LA TIENDA ===== */
+
+.card-product {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none; /* Sin borde */
+    background-color: transparent; /* Más profesional */
+}
+
+.card-product:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* Pagiación */
+.pagination .active .page-link {
+    background-color: #000;
+    border-color: #000;
+    color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Imagen producto */
+.img-product {
+    height: 350px; /* Imagen más grande */
+    object-fit: cover;
+    border-radius: 8px; /* Bordes suaves */
+    transition: transform 0.3s ease;
+}
+
+.card-product:hover .img-product {
+    transform: scale(1.05);
+}
+
+/* Badge oferta */
+.badge {
+    font-size: 0.8rem;
+}
+
+/* Card body */
+.card-body {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem; /* Texto más pequeño */
+    padding: 10px 0 0 0;
+}
+
+/* Carrusel Principal */
+.carousel-item {
+    position: relative; /* Para posicionar elementos internos */
+}
+
+.boton-carrusel {
+    position: absolute;
+    bottom: 20%;
+    left: 5%;
+    z-index: 2; /* Asegura que el botón esté por encima de la imagen */
+}
+
+.boton-carrusel .btn {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+/* Banners */
+.banner-img {
+    width: 100%;
+    max-width: 1200px;
+    height: 250px;
+    object-fit: cover; /* Evita que la imagen se deforme */
+    display: block;
+    margin: 0 auto;
+}
+
+/* Formulario contacto */
+.formulario-contacto {
+    max-width: 700px;
+    width: 100%;
+}
+
+/* Estilos de productos */
+.producto-imagen {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+}
+
+.producto-imagen:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.02);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.badge-vip {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #000;
+    font-weight: bold;
+}
+
+.badge-oferta {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.form-select[multiple] {
+    min-height: 120px;
+}
+
+.btn-guia-talles {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-guia-talles:hover {
+    background: linear-gradient(45deg, #c82333, #a71e2a);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-action {
+    min-width: 80px;
+}
+
+/* ===== ESTILOS RESPONSIVOS ===== */
+
+/* Responsivo para móviles */
+@media (max-width: 576px) {
+    .boton-carrusel .btn {
+        padding: 6px 12px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .banner-img {
+        height: 150px; /* Banners más bajos en celulares */
+    }
+}
+
+/* Ajuste para contador del carrito en móviles */
+@media (max-width: 768px) {
+    #contador-carrito {
+        font-size: 0.5rem !important;
+        transform: translate(-60%, -20%) !important;
+    }
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA INFOEMPRESA.PHP ===== */
+
+.infoempresa-container {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 20px !important;
+    padding: 40px 30px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.infoempresa-header-container {
+    width: 100% !important;
+    padding: 0 15px !important;
+}
+
+.infoempresa-header {
+    color: #7a5c44 !important;
+    border-bottom: 4px solid #7a5c44 !important;
+    padding-bottom: 20px !important;
+    margin-bottom: 40px !important;
+    text-align: center !important;
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+}
+
+.infoempresa-subtitle {
+    color: #6c757d !important;
+    font-size: 1.2rem !important;
+}
+
+.infoempresa-card {
+    background: white !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(122, 92, 68, 0.1) !important;
+    margin-bottom: 25px !important;
+    transition: all 0.3s ease !important;
+}
+
+.infoempresa-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 12px 30px rgba(122, 92, 68, 0.15) !important;
+}
+
+.infoempresa-card-body {
+    padding: 30px !important;
+}
+
+.infoempresa-card-header {
+    align-items: center !important;
+    margin-bottom: 25px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 2px solid #f0f0f0 !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+.infoempresa-icon {
+    background: linear-gradient(135deg, #7a5c44, #9d7a5c) !important;
+    color: white !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 20px !important;
+    font-size: 1.5rem !important;
+    flex-shrink: 0 !important;
+}
+
+.infoempresa-card-title {
+    color: #7a5c44 !important;
+    font-size: 1.4rem !important;
+}
+
+.infoempresa-content-row {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+    align-items: stretch !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+.infoempresa-content-col {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.infoempresa-list {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.infoempresa-list-item {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid #f8f8f8 !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.infoempresa-contact-item {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid #f8f8f8 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.infoempresa-link {
+    color: #7a5c44 !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
+}
+
+.infoempresa-link:hover {
+    color: #5a4432 !important;
+    text-decoration: underline !important;
+}
+
+.infoempresa-social-container {
+    padding: 0 15px !important;
+    width: 100% !important;
+}
+
+.infoempresa-social-text {
+    color: #6c757d !important;
+    font-size: 1.1rem !important;
+}
+
+.infoempresa-buttons-container {
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+.infoempresa-btn {
+    background: linear-gradient(135deg, #7a5c44, #9d7a5c) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 50px !important;
+    padding: 12px 30px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    min-width: 160px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+}
+
+.infoempresa-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 20px rgba(122, 92, 68, 0.3) !important;
+    background: linear-gradient(135deg, #6a4f3a, #8a6a4f) !important;
+    color: white !important;
+}
+
+.infoempresa-map-card {
+    background: white !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(122, 92, 68, 0.1) !important;
+    overflow: hidden !important;
+}
+
+.infoempresa-map-header {
+    background: linear-gradient(135deg, #7a5c44, #9d7a5c) !important;
+    border: none !important;
+    padding: 20px !important;
+    font-size: 1.2rem !important;
+}
+
+.infoempresa-map-body {
+    padding: 0 !important;
+}
+
+.infoempresa-map {
+    border-radius: 0 0 15px 15px !important;
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA MAS_INFO.PHP ===== */
+
+.masinfo-container {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 20px !important;
+    padding: 40px 30px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.masinfo-row {
+    margin: 0 auto !important;
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+.masinfo-col {
+    padding: 0 15px !important;
+}
+
+.masinfo-main-card {
+    background: white !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(122, 92, 68, 0.1) !important;
+    margin-bottom: 30px !important;
+    padding: 40px !important;
+}
+
+.masinfo-main-title {
+    color: #7a5c44 !important;
+    border-bottom: 4px solid #7a5c44 !important;
+    padding-bottom: 20px !important;
+    margin-bottom: 30px !important;
+    font-size: 2.2rem !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.masinfo-description {
+    font-size: 1.1rem !important;
+    line-height: 1.6 !important;
+    color: #6c757d !important;
+}
+
+.masinfo-grid {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+.masinfo-grid-col {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-bottom: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.masinfo-grid-item {
+    background: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 3px 15px rgba(122, 92, 68, 0.08) !important;
+    height: 100% !important;
+    transition: all 0.3s ease !important;
+}
+
+.masinfo-grid-item:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(122, 92, 68, 0.15) !important;
+}
+
+.masinfo-grid-body {
+    padding: 25px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+}
+
+.masinfo-grid-title {
+    color: #7a5c44 !important;
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.masinfo-grid-icon {
+    font-size: 1.2rem !important;
+    flex-shrink: 0 !important;
+}
+
+.masinfo-grid-text {
+    color: #555 !important;
+    line-height: 1.5 !important;
+    flex-grow: 1 !important;
+}
+
+.masinfo-link {
+    color: #7a5c44 !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: color 0.3s ease !important;
+}
+
+.masinfo-link:hover {
+    color: #5a4432 !important;
+    text-decoration: underline !important;
+}
+
+.masinfo-privacy-card {
+    background: white !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(122, 92, 68, 0.1) !important;
+}
+
+.masinfo-privacy-body {
+    padding: 30px !important;
+}
+
+.masinfo-privacy-title {
+    color: #7a5c44 !important;
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.masinfo-privacy-icon {
+    font-size: 1.2rem !important;
+    flex-shrink: 0 !important;
+}
+
+.masinfo-privacy-text {
+    color: #555 !important;
+    line-height: 1.6 !important;
+    margin-bottom: 25px !important;
+}
+
+.masinfo-error-card {
+    background: white !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 20px rgba(122, 92, 68, 0.1) !important;
+}
+
+.masinfo-error-body {
+    padding: 50px 30px !important;
+}
+
+.masinfo-error-icon {
+    margin-bottom: 20px !important;
+}
+
+.masinfo-error-title {
+    color: #7a5c44 !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 20px !important;
+}
+
+.masinfo-error-text {
+    color: #6c757d !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 30px !important;
+}
+
+.masinfo-error-btn {
+    background: linear-gradient(135deg, #7a5c44, #9d7a5c) !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 12px 30px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.masinfo-error-btn:hover {
+    background: linear-gradient(135deg, #6a4f3a, #8a6a4f) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(122, 92, 68, 0.25) !important;
+}

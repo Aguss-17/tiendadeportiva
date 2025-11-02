@@ -1,0 +1,128 @@
+/* BADGES ESPECÍFICOS PARA ADMIN PRODUCTOS */
+
+/* Badge Oferta - Admin */
+.badge-admin-oferta {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+    border: 1px solid #1e7e34;
+}
+
+/* Badge VIP - Admin */
+.badge-admin-vip {
+    background: linear-gradient(135deg, #ff6b35, #ff8e53) !important;
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+    border: 1px solid #e55a2b;
+}
+
+/* Badge Normal - Admin */
+.badge-admin-normal {
+    background: linear-gradient(135deg, #6c757d, #868e96) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #5a6268;
+}
+
+/* Badges de Categorías - Admin */
+.badge-admin-categoria-hombre {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #004a99;
+}
+
+.badge-admin-categoria-mujer {
+    background: linear-gradient(135deg, #e83e8c, #c2176b) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #b3155a;
+}
+
+.badge-admin-categoria-accesorios {
+    background: linear-gradient(135deg, #6f42c1, #5530a3) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #4a2d8a;
+}
+
+.badge-admin-categoria-operra {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #0f6674;
+}
+
+.badge-admin-categoria-ninos {
+    background: linear-gradient(135deg, #20c997, #17a589) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #148f77;
+}
+
+.badge-admin-categoria-default {
+    background: linear-gradient(135deg, #6c757d, #545b62) !important;
+    color: white !important;
+    font-weight: 500;
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+    border: 1px solid #4e555b;
+}
+
+/* Responsividad para badges admin */
+@media (max-width: 767.98px) {
+    .badge-admin-oferta,
+    .badge-admin-vip,
+    .badge-admin-normal,
+    .badge-admin-categoria-hombre,
+    .badge-admin-categoria-mujer,
+    .badge-admin-categoria-accesorios,
+    .badge-admin-categoria-operra,
+    .badge-admin-categoria-ninos,
+    .badge-admin-categoria-default {
+        font-size: 0.65em;
+        padding: 0.3em 0.5em;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .badge-admin-oferta,
+    .badge-admin-vip,
+    .badge-admin-normal,
+    .badge-admin-categoria-hombre,
+    .badge-admin-categoria-mujer,
+    .badge-admin-categoria-accesorios,
+    .badge-admin-categoria-operra,
+    .badge-admin-categoria-ninos,
+    .badge-admin-categoria-default {
+        font-size: 0.6em;
+        padding: 0.25em 0.4em;
+    }
+}
