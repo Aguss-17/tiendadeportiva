@@ -1,6 +1,6 @@
 <?php
 // Generar la URL base dinámica
-$url = "http://" . $_SERVER['HTTP_HOST'] . "/tiendadeportiva";
+$url = "http://" . $_SERVER['HTTP_HOST'];
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -20,16 +20,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $url; ?>/img/apple-touch-icon.png">
 <link rel="stylesheet" href="../css/responsive.css">
 <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
-<?php
-?>
 </head>
 
 <body>
 <!-- Navbar principal -->
 <nav class="navbar navbar-light bg-light navbar-expand-lg px-4 py-3 shadow-sm border-bottom">
 <div class="container-fluid">
-      <a class="navbar-brand me-5" href="/tiendadeportiva/administrador/inicio.php">
-            <img src="/tiendadeportiva/img/logo.jpg" width="140" alt="Logo Aura Sport" title="Panel de Administración">
+      <a class="navbar-brand me-5" href="/administrador/inicio.php">
+            <img src="/img/logo.jpg" width="140" alt="Logo Aura Sport" title="Panel de Administración">
       </a>
 
       <div class="navbar-nav flex-row gap-3 align-items-center">

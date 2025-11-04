@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
 include(__DIR__ . '/../estructura/cabecera.php');
 ?>
 
-<link rel="stylesheet" href="/tiendadeportiva/css/estilo_foro.css">
+<link rel="stylesheet" href="/css/estilo_foro.css">
 
 <main class="container my-5">
     <div class="row">

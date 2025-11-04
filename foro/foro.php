@@ -61,7 +61,7 @@ try {
 }
 ?>
 
-<link rel="stylesheet" href="/tiendadeportiva/css/estilo_foro.css">
+<link rel="stylesheet" href="/css/estilo_foro.css">
 
 <main class="container my-5">
     <div class="row">
