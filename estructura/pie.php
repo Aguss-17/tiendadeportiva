@@ -1,4 +1,4 @@
-<?php $url = "http://" . $_SERVER['HTTP_HOST'] . "/tiendadeportiva" ?>
+<?php $url = "http://" . $_SERVER['HTTP_HOST']; ?>
 
 <footer class="bg-light py-5 mt-n1">
 
@@ -7,30 +7,29 @@
         <div class="row">
 
             <article class="col-md-3 mb-4">
-    <h4 class="fw-bold">Nosotros</h4>
-    <ul class="list-unstyled">
-        <li><a href="<?php echo $url; ?>/informacion/info_empresa.php" class="text-decoration-none text-dark">Información de la empresa</a></li>
-        <li><a href="<?php echo $url; ?>/informacion/blog.php" class="text-decoration-none text-dark">¡Visita nuestro Blog!</a></li>
-        <li><a href="<?php echo $url; ?>/informacion/privacidad.php" class="text-decoration-none text-dark">Políticas de privacidad</a></li>
-        <li> Medios de Pago:
-    <div class="d-flex flex-wrap gap-4 mt-3 justify-content-start">
-        <div class="text-center" title="Transferencia bancaria">
-            <i class="bi bi-bank text-dark" style="font-size: 3rem;"></i>
-        </div>
-        <div class="text-center" title="Mercado Pago">
-            <i class="bi bi-wallet2 text-dark" style="font-size: 3rem;"></i>
-        </div>
-        <div class="text-center" title="Efectivo">
-            <i class="bi bi-cash-coin text-dark" style="font-size: 3rem;"></i>
-        </div>
-        <div class="text-center" title="Tarjeta de crédito/débito">
-            <i class="bi bi-credit-card text-dark" style="font-size: 3rem;"></i>
-        </div>
-    </div>
-</li>
-
-    </ul>
-</article>
+                <h4 class="fw-bold">Nosotros</h4>
+                <ul class="list-unstyled">
+                    <li><a href="<?php echo $url; ?>/informacion/info_empresa.php" class="text-decoration-none text-dark">Información de la empresa</a></li>
+                    <li><a href="<?php echo $url; ?>/informacion/blog.php" class="text-decoration-none text-dark">¡Visita nuestro Blog!</a></li>
+                    <li><a href="<?php echo $url; ?>/informacion/privacidad.php" class="text-decoration-none text-dark">Políticas de privacidad</a></li>
+                    <li> Medios de Pago:
+                        <div class="d-flex flex-wrap gap-4 mt-3 justify-content-start">
+                            <div class="text-center" title="Transferencia bancaria">
+                                <i class="bi bi-bank text-dark" style="font-size: 3rem;"></i>
+                            </div>
+                            <div class="text-center" title="Mercado Pago">
+                                <i class="bi bi-wallet2 text-dark" style="font-size: 3rem;"></i>
+                            </div>
+                            <div class="text-center" title="Efectivo">
+                                <i class="bi bi-cash-coin text-dark" style="font-size: 3rem;"></i>
+                            </div>
+                            <div class="text-center" title="Tarjeta de crédito/débito">
+                                <i class="bi bi-credit-card text-dark" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </article>
 
             <article class="col-md-3 mb-4">
                 <h4 class="fw-bold">Categorías</h4>
@@ -63,7 +62,7 @@
                 <ul class="list-unstyled">
                     <li><a href="<?php echo $url; ?>/menu/exclusivo.php" class="text-decoration-none text-dark">Exclusivo</a></li>
                     <li><a href="<?php echo $url; ?>/menu/vacantes.php" class="text-decoration-none text-dark">Vacantes</a></li>
-                    <li><a href="<?php echo $url; ?>/informacion/entregas.php" class="text-decoration-none text-dark">Entregas a domicilio</a></li> <!--Servicio adicional-->
+                    <li><a href="<?php echo $url; ?>/informacion/entregas.php" class="text-decoration-none text-dark">Entregas a domicilio</a></li>
                 </ul>
             </article>
             <p class="mb-0 small text-center text-muted">CRs: Micaela Monsserrat, Agustina Montiel, Sabrina Flores</p>
@@ -83,68 +82,46 @@
                 body: form
             });
             const data = await res.json();
-
             if (data.exito) {
                 const totalItems = Object.values(data.carrito).reduce((total, item) => total + item.cantidad, 0);
                 const contador = document.getElementById('contador-carrito');
-                if (contador) {
-                    contador.textContent = `(${totalItems})`;
-                }
+                if (contador) contador.textContent = `(${totalItems})`;
             }
         } catch (error) {
             console.error('Error al actualizar contador:', error);
         }
     }
+    document.addEventListener('DOMContentLoaded', actualizarContadorCarrito);
 
-    // Actualizar contador al cargar la página
+    // Detectar página activa
     document.addEventListener('DOMContentLoaded', function() {
-        actualizarContadorCarrito();
-    });
-</script>
-
-<script>
-    // Detectar página activa y resaltar enlace correspondiente
-    document.addEventListener('DOMContentLoaded', function() {
-        // Obtener la URL actual
         const currentPage = window.location.pathname;
-
-        // Mapeo de URLs a elementos del menú
         const pageMap = {
-            '/tiendadeportiva/menu/mujer.php': 'Mujer',
-            '/tiendadeportiva/menu/hombre.php': 'Hombre',
-            '/tiendadeportiva/menu/niños.php': 'Niños',
-            '/tiendadeportiva/menu/accesorios.php': 'Accesorios',
-            '/tiendadeportiva/menu/oferta.php': 'Ofertas',
-            '/tiendadeportiva/menu/nosotros.php': 'Nosotros',
-            '/tiendadeportiva/menu/exclusivo.php': 'Exclusivo',
-            '/tiendadeportiva/menu/vacantes.php': 'Vacantes',
-            '/tiendadeportiva/administrador/index.php': 'Administrador',
-            '/tiendadeportiva/index.php': 'Inicio'
+            '/menu/mujer.php': 'Mujer',
+            '/menu/hombre.php': 'Hombre',
+            '/menu/niños.php': 'Niños',
+            '/menu/accesorios.php': 'Accesorios',
+            '/menu/oferta.php': 'Ofertas',
+            '/menu/nosotros.php': 'Nosotros',
+            '/menu/exclusivo.php': 'Exclusivo',
+            '/menu/vacantes.php': 'Vacantes',
+            '/administrador/index.php': 'Administrador',
+            '/index.php': 'Inicio'
         };
-
-        // Buscar y resaltar el enlace activo
         let activeFound = false;
-
-        // Buscar en navbar principal
         const navLinks = document.querySelectorAll('#navbarNavDropdown .nav-link');
         navLinks.forEach(link => {
-            const linkText = link.textContent.trim();
-
-            // Verificar si este enlace corresponde a la página actual
-            if (pageMap[currentPage] === linkText) {
+            if (pageMap[currentPage] === link.textContent.trim()) {
                 link.classList.add('active');
                 activeFound = true;
             } else {
                 link.classList.remove('active');
             }
         });
-
-        // Si no se encontró en navbar, buscar en otros menús
         if (!activeFound) {
-            const allLinks = document.querySelectorAll('.nav-link');
-            allLinks.forEach(link => {
+            document.querySelectorAll('.nav-link').forEach(link => {
                 const linkHref = link.getAttribute('href');
-                if (linkHref && currentPage.includes(linkHref.replace('/tiendadeportiva/', ''))) {
+                if (linkHref && currentPage.includes(linkHref.replace('/', ''))) {
                     link.classList.add('active');
                 }
             });
@@ -152,5 +129,4 @@
     });
 </script>
 </body>
-
 </html>
