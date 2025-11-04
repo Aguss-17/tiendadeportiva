@@ -20,8 +20,9 @@ if (!$post) {
 
 include('../estructura/cabecera.php');
 ?>
+
 <!-- Incluimos estilos solo para blog -->
-<link rel="stylesheet" href="/tiendadeportiva/css/estilos_blog.css">
+<link rel="stylesheet" href="/css/estilos_blog.css">
 
 <main style="background-color: #dec19e; padding: 20px 0;">
 <article class="container my-5">
