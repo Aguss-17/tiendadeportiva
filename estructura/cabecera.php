@@ -1,6 +1,6 @@
 <?php
-// Genera la URL base dinámica para evitar rutas rotas al cambiar de entorno
-$url = "http://" . $_SERVER['HTTP_HOST'] . "/tiendadeportiva";
+// Genera la URL base dinámica
+$url = "http://" . $_SERVER['HTTP_HOST']; 
 ?>
 
 <!DOCTYPE html>
@@ -15,14 +15,14 @@ $url = "http://" . $_SERVER['HTTP_HOST'] . "/tiendadeportiva";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- Ícono de la pestaña del navegador -->
     <link rel="icon" type="image/png" href="<?php echo $url; ?>/img/favicon.png">
-    <!-- General -->
     <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $url; ?>/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="<?php echo $url; ?>/img/favicon-16x16.png">
-    <!-- Para iOS -->
     <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $url; ?>/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/tiendadeportiva/css/estilo.css">
-    <link rel="stylesheet" href="/tiendadeportiva/css/responsive.css">
-    <link rel="stylesheet" href="/tiendadeportiva/css/modo_oscuro.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="<?php echo $url; ?>/css/estilo.css">
+    <link rel="stylesheet" href="<?php echo $url; ?>/css/responsive.css">
+    <link rel="stylesheet" href="<?php echo $url; ?>/css/modo_oscuro.css">
 
     <script>
         // Sistema MÍNIMO de Modo Claro/Oscuro
@@ -61,8 +61,8 @@ $url = "http://" . $_SERVER['HTTP_HOST'] . "/tiendadeportiva";
 <body>
     <nav class="navbar navbar-light bg-light navbar-expand-lg px-5 py-3">
         <div class="container-fluid d-flex align-items-center">
-            <a class="navbar-brand me-3" href="/tiendadeportiva/index.php">
-                <img src="/tiendadeportiva/img/logosinfondo.png" class="img-fluid d-block" style="max-width: 120px;" alt="Logo Aura Sport">
+            <a class="navbar-brand me-3" href="<?php echo $url; ?>/index.php">
+                <img src="<?php echo $url; ?>/img/logosinfondo.png" class="img-fluid d-block" style="max-width: 120px;" alt="Logo Aura Sport">
             </a>
             <form class="d-none d-md-flex w-50 mx-4" action="buscar.php" method="GET" style="max-width: 45%;">
                 <input class="form-control me-2" type="text" name="busqueda" placeholder="Buscar">
@@ -75,7 +75,7 @@ $url = "http://" . $_SERVER['HTTP_HOST'] . "/tiendadeportiva";
                         (0)
                     </span>
                 </a>
-                <a href="<?php echo $url; ?>../foro/foro.php" class="text-dark fs-4" title="Foro comunicativo"><i class="bi bi-chat-dots"></i></a>
+                <a href="<?php echo $url; ?>/foro/foro.php" class="text-dark fs-4" title="Foro comunicativo"><i class="bi bi-chat-dots"></i></a>
                 <a href="<?php echo $url; ?>/login.php" class="text-dark fs-4" title="Iniciar sesión"><i class="bi bi-person-circle"></i></a>
                 <a href="<?php echo $url; ?>/registro.php" class="text-dark fs-4" title="Registrarme"><i class="bi bi-fingerprint"></i></a>
             </div>
