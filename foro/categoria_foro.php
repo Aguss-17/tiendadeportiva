@@ -47,7 +47,8 @@ $total_paginas = ceil($total_temas / $por_pagina);
 include(__DIR__ . '/../estructura/cabecera.php');
 ?>
 
-<link rel="stylesheet" href="/tiendadeportiva/css/estilo_foro.css">
+<!-- CSS corregido -->
+<link rel="stylesheet" href="/css/estilo_foro.css">
 
 <main class="container my-5">
     <div class="row">
