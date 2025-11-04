@@ -63,7 +63,7 @@ $puestos = $sentenciaPuestos->fetchAll(PDO::FETCH_COLUMN);
 include('../administrador/estructura/cabecera.php');
 ?>
 
-<div class="container-fluid py-4" style="background-color: #dec19e;">
+<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="card shadow">

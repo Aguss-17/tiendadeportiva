@@ -19,10 +19,10 @@ if (empty($_SESSION['csrf_token'])) {
 define('ENV', getenv('ENV') ?: 'production'); // 'development' o 'production'
 
 // Datos de conexión
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'aurasport');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_HOST', getenv('DB_HOST') ?: 'mysql-agustina.alwaysdata.net');
+define('DB_NAME', getenv('DB_NAME') ?: 'agustina_aurasport');
+define('DB_USER', getenv('DB_USER') ?: 'agustina');
+define('DB_PASS', getenv('DB_PASS') ?: '47422Agus');
 
 // Función para obtener conexión PDO
 function getConexion() {
