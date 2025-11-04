@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include(__DIR__ . '/../estructura/cabecera.php');
 ?>
 
-<link rel="stylesheet" href="/tiendadeportiva/css/estilo_foro.css">
+<link rel="stylesheet" href="/css/estilo_foro.css">
 
 <main class="container my-5">
     <div class="row justify-content-center">
@@ -96,7 +96,7 @@ include(__DIR__ . '/../estructura/cabecera.php');
                                 <option value="">Selecciona una categoría</option>
                                 <?php foreach($categorias as $categoria): ?>
                                     <option value="<?php echo $categoria['id']; ?>" 
-                                        <?php echo (isset($_POST['categoria_id']) && $_POST['categoria_id'] == $categoria['id']) ? 'selected' : ''; ?>>
+                                        <?php echo (isset($_POST['categoria_id']) && $_POST['categoria_id'] == $categoria['id']) ? 'selected' : ''; ?> >
                                         <?php echo htmlspecialchars($categoria['nombre']); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -148,4 +148,3 @@ include(__DIR__ . '/../estructura/cabecera.php');
 </main>
 
 <?php include(__DIR__ . '/../estructura/pie.php'); ?>
-
