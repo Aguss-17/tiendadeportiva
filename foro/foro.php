@@ -26,7 +26,7 @@ try {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $categoria['total_respuestas'] = $result ? $result['total_respuestas'] : 0;
         
-        // Último tema - CON VERIFICACIÓN
+        // Último tema
         $stmt = $conexion->prepare("
             SELECT t.id, t.titulo, t.creado_en, u.usuario 
             FROM foro_temas t 
@@ -38,9 +38,7 @@ try {
         $ultimo_tema = $stmt->fetch(PDO::FETCH_ASSOC);
         $categoria['ultimo_tema'] = $ultimo_tema ? $ultimo_tema : null;
     }
-    
-    unset($categoria); // Importante: desreferenciar el último elemento
-    
+    unset($categoria); // Desreferenciar el último elemento
 } catch (PDOException $e) {
     error_log("Error en foro.php: " . $e->getMessage());
     $error = "Error al cargar las categorías del foro";
