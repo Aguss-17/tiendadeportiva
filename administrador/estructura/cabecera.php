@@ -1,7 +1,23 @@
 <?php
-// Generar la URL base dinámica
-$url = "http://" . $_SERVER['HTTP_HOST'];
-$current_page = basename($_SERVER['PHP_SELF']);
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+$root = $protocol . "://" . $_SERVER['HTTP_HOST'];
+
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+
+// Detectar carpeta real del proyecto (si está en subcarpeta de AlwaysData)
+$pathParts = explode('/', trim($scriptDir, '/'));
+$baseFolder = $pathParts[0] ?? '';
+
+if ($baseFolder && $baseFolder !== 'menu' && $baseFolder !== 'informacion' && $baseFolder !== 'carrito' && $baseFolder !== 'administrador') {
+    // Proyecto dentro de una carpeta (ej: /aura-sport)
+      $basePath = '/' . $baseFolder;
+} else {
+    // Proyecto en la raíz
+      $basePath = '';
+}
+
+$url = rtrim($root . $basePath, '/');
+
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +43,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <nav class="navbar navbar-light bg-light navbar-expand-lg px-4 py-3 shadow-sm border-bottom">
 <div class="container-fluid">
       <a class="navbar-brand me-5" href="/administrador/inicio.php">
-            <img src="/img/logo.jpg" width="140" alt="Logo Aura Sport" title="Panel de Administración">
+            <img src="<?php echo $url; ?>/img/logosinfondo.png" class="img-fluid d-block" style="max-width: 120px;" alt="Logo Aura Sport">
       </a>
 
       <div class="navbar-nav flex-row gap-3 align-items-center">

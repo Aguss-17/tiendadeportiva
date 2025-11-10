@@ -13,6 +13,11 @@ function csrf_token() {
     return $_SESSION['csrf_token'];
 }
 
+// Helper para evitar null en htmlspecialchars
+function h($string) {
+    return htmlspecialchars($string ?? '');
+}
+
 // Validar token CSRF al recibir POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
@@ -110,41 +115,43 @@ include('../administrador/estructura/cabecera.php');
             <div class="card-body">
                 <form method="POST" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                    <input type="hidden" name="txtID" value="<?= htmlspecialchars($txtID) ?>">
+
+                    <!--  FIX NULL -->
+                    <input type="hidden" name="txtID" value="<?= h($txtID) ?>">
 
                     <div class="mb-3">
                         <label class="form-label">ID</label>
-                        <input type="text" readonly class="form-control bg-light" value="<?= htmlspecialchars($txtID) ?>">
+                        <input type="text" readonly class="form-control bg-light" value="<?= h($txtID) ?>">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Puesto *</label>
-                        <input type="text" class="form-control" name="txtPuesto" value="<?= htmlspecialchars($txtPuesto) ?>" required>
+                        <input type="text" class="form-control" name="txtPuesto" value="<?= h($txtPuesto) ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Descripción *</label>
-                        <textarea class="form-control" name="txtDescripcion" rows="3" required><?= htmlspecialchars($txtDescripcion) ?></textarea>
+                        <textarea class="form-control" name="txtDescripcion" rows="3" required><?= h($txtDescripcion) ?></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Salario</label>
-                        <input type="text" class="form-control" name="txtSalario" value="<?= htmlspecialchars($txtSalario) ?>" placeholder="Ej: $500,000 - $700,000">
+                        <input type="text" class="form-control" name="txtSalario" value="<?= h($txtSalario) ?>" placeholder="Ej: $500,000 - $700,000">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Ubicación</label>
-                        <input type="text" class="form-control" name="txtUbicacion" value="<?= htmlspecialchars($txtUbicacion) ?>" placeholder="Ej: Sucursal Centro, Remoto, etc.">
+                        <input type="text" class="form-control" name="txtUbicacion" value="<?= h($txtUbicacion) ?>" placeholder="Ej: Sucursal Centro, Remoto, etc.">
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Fecha Inicio</label>
-                            <input type="date" class="form-control" name="txtFechaInicio" value="<?= htmlspecialchars($txtFechaInicio) ?>">
+                            <input type="date" class="form-control" name="txtFechaInicio" value="<?= h($txtFechaInicio) ?>">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Fecha Cierre</label>
-                            <input type="date" class="form-control" name="txtFechaCierre" value="<?= htmlspecialchars($txtFechaCierre) ?>">
+                            <input type="date" class="form-control" name="txtFechaCierre" value="<?= h($txtFechaCierre) ?>">
                         </div>
                     </div>
 
@@ -171,7 +178,7 @@ include('../administrador/estructura/cabecera.php');
                         <div id="listaRequisitos" class="mt-2">
                             <?php foreach ($txtRequisitos as $req): ?>
                                 <?php if (!in_array($req, ['Experiencia comprobable', 'Estudios universitarios', 'Disponibilidad horaria', 'Inglés intermedio', 'Manejo de Office', 'Licencia de conducir', 'Trabajo en equipo'])): ?>
-                                    <span class="badge bg-primary me-1 mb-1"><?= htmlspecialchars($req) ?>
+                                    <span class="badge bg-primary me-1 mb-1"><?= h($req) ?>
                                         <button type="button" class="btn-close btn-close-white ms-1" style="font-size: 0.7rem;" onclick="removerRequisito(this)"></button>
                                     </span>
                                 <?php endif; ?>
@@ -222,11 +229,11 @@ include('../administrador/estructura/cabecera.php');
                                 <tr>
                                     <td><?= $vacante['id'] ?></td>
                                     <td>
-                                        <strong><?= htmlspecialchars($vacante['puesto']) ?></strong>
-                                        <br><small class="text-muted"><?= substr(htmlspecialchars($vacante['descripcion']), 0, 50) ?>...</small>
+                                        <strong><?= h($vacante['puesto']) ?></strong>
+                                        <br><small class="text-muted"><?= substr(h($vacante['descripcion']), 0, 50) ?>...</small>
                                     </td>
-                                    <td><?= !empty($vacante['salario']) ? htmlspecialchars($vacante['salario']) : 'No especificado' ?></td>
-                                    <td><?= !empty($vacante['ubicacion']) ? htmlspecialchars($vacante['ubicacion']) : 'No especificada' ?></td>
+                                    <td><?= !empty($vacante['salario']) ? h($vacante['salario']) : 'No especificado' ?></td>
+                                    <td><?= !empty($vacante['ubicacion']) ? h($vacante['ubicacion']) : 'No especificada' ?></td>
                                     <td>
                                         <?php if (!empty($vacante['fecha_cierre'])): ?>
                                             <?= date('d/m/Y', strtotime($vacante['fecha_cierre'])) ?>
@@ -241,12 +248,12 @@ include('../administrador/estructura/cabecera.php');
                                         <div class="d-flex gap-2">
                                             <form method="POST">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                <input type="hidden" name="txtID" value="<?= $vacante['id'] ?>">
+                                                <input type="hidden" name="txtID" value="<?= h($vacante['id']) ?>">
                                                 <button type="submit" name="accion" value="Seleccionar" class="btn btn-sm btn-primary">Editar</button>
                                             </form>
                                             <form method="POST">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                <input type="hidden" name="txtID" value="<?= $vacante['id'] ?>">
+                                                <input type="hidden" name="txtID" value="<?= h($vacante['id']) ?>">
                                                 <button type="submit" name="accion" value="Borrar" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta vacante?')">Eliminar</button>
                                             </form>
                                         </div>

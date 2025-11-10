@@ -28,18 +28,18 @@ if (isset($_GET['token'])) {
 
             // Verificar expiración
             if ($result['expires'] && strtotime($result['expires']) < time()) {
-                $error = "⏰ El enlace ha expirado. Solicita uno nuevo.";
+                $error = "El enlace ha expirado. Solicita uno nuevo.";
                 $user = null;
             }
         } else {
-            $error = "❌ Enlace inválido o ya utilizado.";
+            $error = "Enlace inválido o ya utilizado.";
         }
     } catch (PDOException $e) {
         error_log("Error en restablecer: " . $e->getMessage());
-        $error = "⚠️ Error del sistema. Intenta más tarde.";
+        $error = "Error del sistema. Intenta más tarde.";
     }
 } else {
-    $error = "❌ Enlace de recuperación no válido.";
+    $error = "Enlace de recuperación no válido.";
 }
 
 // Procesar cambio de contraseña
@@ -49,13 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error && $user) {
 
     // Validaciones
     if (empty($password) || empty($confirm)) {
-        $error = "❌ Todos los campos son obligatorios.";
+        $error = "Todos los campos son obligatorios.";
     } elseif (strlen($password) < 6) {
-        $error = "❌ La contraseña debe tener al menos 6 caracteres.";
+        $error = "La contraseña debe tener al menos 6 caracteres.";
     } elseif ($password !== $confirm) {
-        $error = "❌ Las contraseñas no coinciden.";
+        $error = "Las contraseñas no coinciden.";
     } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/', $password)) {
-        $error = "❌ La contraseña debe incluir mayúsculas, minúsculas y números.";
+        $error = "La contraseña debe incluir mayúsculas, minúsculas y números.";
     } else {
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
@@ -78,12 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error && $user) {
 
             $conexion->commit();
 
-            $success = "✅ Contraseña cambiada con éxito. Ya podés iniciar sesión.";
+            $success = "Contraseña cambiada con éxito. Ya podés iniciar sesión.";
             $user = null;
         } catch (PDOException $e) {
             $conexion->rollBack();
             error_log("Error al actualizar contraseña: " . $e->getMessage());
-            $error = "⚠️ Error al actualizar la contraseña. Intenta nuevamente.";
+            $error = "Error al actualizar la contraseña. Intenta nuevamente.";
         }
     }
 }
@@ -98,13 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error && $user) {
         <?php if ($error && !$user): ?>
             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
             <div class="text-center mt-3">
-                <a href="recuperar.php" class="btn btn-dark">🔄 Solicitar nuevo enlace</a>
+                <a href="recuperar.php" class="btn btn-dark">Solicitar nuevo enlace</a>
             </div>
 
         <?php elseif ($success): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
             <div class="text-center mt-3">
-                <a href="login.php" class="btn btn-dark">🚀 Ir al Login</a>
+                <a href="login.php" class="btn btn-dark">Ir al Login</a>
             </div>
 
         <?php elseif (!$error && $user): ?>
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error && $user) {
 
             <form method="post" novalidate>
                 <div class="mb-3">
-                    <label for="contraseña" class="form-label">🔒 Nueva Contraseña</label>
+                    <label for="contraseña" class="form-label">Nueva Contraseña</label>
                     <div class="input-group">
                         <input type="password" class="form-control" id="contraseña" name="contraseña" required minlength="6">
                         <span class="input-group-text" style="cursor: pointer;" id="togglePass">
@@ -127,11 +127,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error && $user) {
                 </div>
 
                 <div class="mb-3">
-                    <label for="confirmar" class="form-label">🔁 Confirmar Contraseña</label>
+                    <label for="confirmar" class="form-label">Confirmar Contraseña</label>
                     <input type="password" class="form-control" id="confirmar" name="confirmar" required minlength="6">
                 </div>
 
-                <button type="submit" class="btn btn-dark w-100">🔄 Cambiar Contraseña</button>
+                <button type="submit" class="btn btn-dark w-100">Cambiar Contraseña</button>
             </form>
         <?php endif; ?>
 

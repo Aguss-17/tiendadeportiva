@@ -1,10 +1,10 @@
 <?php
-session_start();
+
 require_once __DIR__ . '/../config/bd.php';
 require_once __DIR__ . '/../modelos/modelo_pedido.php';
 
-
 class ControladorCheckout {
+
     private PDO $conexion;
     private ModeloPedido $modelo;
 
@@ -15,11 +15,12 @@ class ControladorCheckout {
 
     // Procesar pedido (POST)
     public function procesarCheckout(): array {
+
         if (empty($_SESSION['carrito'])) {
             return ['exito' => false, 'error' => 'El carrito está vacío.'];
         }
 
-        $usuario_id = $_SESSION['usuario_id'] ?? null;
+        $usuario_id = $_SESSION['user_id'] ?? null;
         if (!$usuario_id) {
             return ['exito' => false, 'error' => 'Usuario no identificado.'];
         }
@@ -30,7 +31,10 @@ class ControladorCheckout {
         $direccion = $_POST['direccion'] ?? '';
         $telefono = $_POST['telefono'] ?? '';
         $metodo_pago = $_POST['metodo_pago'] ?? '';
-        $datos_pago = $_POST['datos_pago'] ?? '';
+        
+        // Preparar datos de pago
+        $datos_pago = $this->prepararDatosPago($_POST);
+        
         $carrito = $_SESSION['carrito'];
         $total = $this->calcularTotal();
 
@@ -39,30 +43,84 @@ class ControladorCheckout {
 
             // Crear pedido
             $pedido_id = $this->modelo->crearPedido([
-                $usuario_id, $nombre, $email, $direccion, $telefono, $total, $metodo_pago, $datos_pago
+                $usuario_id, $nombre, $email, $direccion, $telefono, 
+                $total, $metodo_pago, $datos_pago
             ]);
 
             // Agregar ítems
             $this->modelo->agregarItemsPedido($pedido_id, $carrito);
 
-            // Actualizar stock
-            $this->modelo->actualizarStock($carrito);
-
+            // Confirmar transacción
             $this->conexion->commit();
+
+            // ✅ Enviar email de confirmación
+            $email_enviado = $this->modelo->enviarEmailConfirmacion(
+                $email,
+                $pedido_id,
+                $carrito,
+                $total,
+                $direccion
+            );
+
+            // ✅ Logging del resultado del email
+            if ($email_enviado) {
+                error_log("✅ Email de confirmación enviado - Pedido #$pedido_id a: $email");
+            } else {
+                error_log("❌ Error al enviar email - Pedido #$pedido_id a: $email");
+                $_SESSION['email_warning'] = "Pedido procesado, pero no pudimos enviar el email de confirmación.";
+            }
 
             // Vaciar carrito
             unset($_SESSION['carrito']);
 
-            return ['exito' => true];
+            return ['exito' => true, 'pedido_id' => $pedido_id];
+
         } catch (Exception $e) {
             $this->conexion->rollBack();
             return ['exito' => false, 'error' => 'Error al procesar el pedido: ' . $e->getMessage()];
         }
     }
 
+    private function prepararDatosPago($postData): string {
+        $metodo_pago = $postData['metodo_pago'] ?? '';
+        $datos = [];
+        
+        switch ($metodo_pago) {
+            case 'tarjeta':
+                $datos = [
+                    'tipo' => 'tarjeta',
+                    'numero' => substr($postData['numero_tarjeta'] ?? '', -4),
+                    'vencimiento' => $postData['fecha_vencimiento'] ?? '',
+                    'titular' => $postData['nombre_titular'] ?? ''
+                ];
+                break;
+                
+            case 'transferencia':
+                $datos = [
+                    'tipo' => 'transferencia',
+                    'metodo' => $postData['tipo_transferencia'] ?? '',
+                    'alias' => $postData['alias_mp'] ?? ''
+                ];
+                break;
+                
+            case 'efectivo':
+                $datos = [
+                    'tipo' => 'efectivo',
+                    'sucursal' => $postData['sucursal'] ?? ''
+                ];
+                break;
+                
+            default:
+                $datos = ['tipo' => $metodo_pago];
+        }
+        
+        return json_encode($datos);
+    }
+
     // Obtener datos para la vista
     public function obtenerDatosVista(): array {
-        $usuario_id = $_SESSION['usuario_id'] ?? null;
+
+        $usuario_id = $_SESSION['user_id'] ?? null;
         $usuario_data = $usuario_id ? $this->modelo->obtenerUsuario($usuario_id) : null;
 
         return [
@@ -107,4 +165,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = $resultado['error'];
     }
 }
+
 ?>

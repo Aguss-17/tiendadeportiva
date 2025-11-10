@@ -1,4 +1,4 @@
-/* ===== ESTILOS GENERALES DE LA TIENDA ===== */
+/* ESTILOS GENERALES DE LA TIENDA */
 
 .card-product {
     display: flex;
@@ -73,7 +73,8 @@
 .banner-img {
     width: 100%;
     max-width: 1200px;
-    height: 250px;
+    height: auto; 
+    max-height: 250px;
     object-fit: cover; /* Evita que la imagen se deforme */
     display: block;
     margin: 0 auto;
@@ -144,7 +145,7 @@
     min-width: 80px;
 }
 
-/* ===== ESTILOS RESPONSIVOS ===== */
+/* ESTILOS RESPONSIVOS */
 
 /* Responsivo para móviles */
 @media (max-width: 576px) {
@@ -166,7 +167,7 @@
     }
 }
 
-/* ===== ESTILOS ESPECÍFICOS PARA INFOEMPRESA.PHP ===== */
+/* ESTILOS ESPECÍFICOS PARA INFOEMPRESA.PHP */
 
 .infoempresa-container {
     background: rgba(255, 255, 255, 0.95) !important;
@@ -547,3 +548,4 @@
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 18px rgba(122, 92, 68, 0.25) !important;
 }
+

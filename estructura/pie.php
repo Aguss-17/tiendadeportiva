@@ -1,4 +1,24 @@
-<?php $url = "http://" . $_SERVER['HTTP_HOST']; ?>
+<?php
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+$root = $protocol . "://" . $_SERVER['HTTP_HOST'];
+
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+
+// Detectar carpeta real del proyecto (si está en subcarpeta de AlwaysData)
+$pathParts = explode('/', trim($scriptDir, '/'));
+$baseFolder = $pathParts[0] ?? '';
+
+if ($baseFolder && $baseFolder !== 'menu' && $baseFolder !== 'informacion' && $baseFolder !== 'carrito' && $baseFolder !== 'administrador') {
+    // Proyecto dentro de una carpeta (ej: /aura-sport)
+    $basePath = '/' . $baseFolder;
+} else {
+    // Proyecto en la raíz
+    $basePath = '';
+}
+
+$url = rtrim($root . $basePath, '/');
+
+?>
 
 <footer class="bg-light py-5 mt-n1">
 
@@ -65,7 +85,14 @@
                     <li><a href="<?php echo $url; ?>/informacion/entregas.php" class="text-decoration-none text-dark">Entregas a domicilio</a></li>
                 </ul>
             </article>
-            <p class="mb-0 small text-center text-muted">CRs: Micaela Monsserrat, Agustina Montiel, Sabrina Flores</p>
+            <p class="mb-0 small text-center text-muted">
+                CRs: Micaela Monsserrat, Agustina Montiel, Sabrina Flores
+                <a href="<?php echo $url; ?>/administrador/index.php"
+                    style="color: inherit; text-decoration: none; opacity: 0.2;">
+                    ©
+                </a>
+            </p>
+
         </div>
     </section>
 </footer>
@@ -95,38 +122,33 @@
 
     // Detectar página activa
     document.addEventListener('DOMContentLoaded', function() {
-        const currentPage = window.location.pathname;
+
+        // Obtiene solo el nombre del archivo actual
+        const currentPage = window.location.pathname.split('/').pop();
+
         const pageMap = {
-            '/menu/mujer.php': 'Mujer',
-            '/menu/hombre.php': 'Hombre',
-            '/menu/niños.php': 'Niños',
-            '/menu/accesorios.php': 'Accesorios',
-            '/menu/oferta.php': 'Ofertas',
-            '/menu/nosotros.php': 'Nosotros',
-            '/menu/exclusivo.php': 'Exclusivo',
-            '/menu/vacantes.php': 'Vacantes',
-            '/administrador/index.php': 'Administrador',
-            '/index.php': 'Inicio'
+            'mujer.php': 'Mujer',
+            'hombre.php': 'Hombre',
+            'niños.php': 'Niños',
+            'accesorios.php': 'Accesorios',
+            'ofertas.php': 'Ofertas',
+            'nosotros.php': 'Nosotros',
+            'exclusivo.php': 'Exclusivo',
+            'vacantes.php': 'Vacantes',
+            'index.php': 'Inicio'
         };
-        let activeFound = false;
+
         const navLinks = document.querySelectorAll('#navbarNavDropdown .nav-link');
+
         navLinks.forEach(link => {
             if (pageMap[currentPage] === link.textContent.trim()) {
                 link.classList.add('active');
-                activeFound = true;
             } else {
                 link.classList.remove('active');
             }
         });
-        if (!activeFound) {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                const linkHref = link.getAttribute('href');
-                if (linkHref && currentPage.includes(linkHref.replace('/', ''))) {
-                    link.classList.add('active');
-                }
-            });
-        }
     });
 </script>
 </body>
+
 </html>

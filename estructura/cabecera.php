@@ -1,61 +1,96 @@
 <?php
-// Genera la URL base dinámica
-$url = "http://" . $_SERVER['HTTP_HOST']; 
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+$root = $protocol . "://" . $_SERVER['HTTP_HOST'];
+
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+
+// Detectar carpeta real del proyecto (si está en subcarpeta de AlwaysData)
+$pathParts = explode('/', trim($scriptDir, '/'));
+$baseFolder = $pathParts[0] ?? '';
+
+if ($baseFolder && $baseFolder !== 'menu' && $baseFolder !== 'informacion' && $baseFolder !== 'carrito' && $baseFolder !== 'administrador') {
+    // Proyecto dentro de una carpeta (ej: /aura-sport)
+    $basePath = '/' . $baseFolder;
+} else {
+    // Proyecto en la raíz
+    $basePath = '';
+}
+
+$url = rtrim($root . $basePath, '/');
+
 ?>
 
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
-
-<head>
+<html lang="es" data-theme="light"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Sport</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <!-- Ícono de la pestaña del navegador -->
     <link rel="icon" type="image/png" href="<?php echo $url; ?>/img/favicon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $url; ?>/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo $url; ?>/img/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $url; ?>/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://agustina.alwaysdata.net/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://agustina.alwaysdata.net/img/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://agustina.alwaysdata.net/img/apple-touch-icon.png">
 
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo $url; ?>/css/estilo.css">
     <link rel="stylesheet" href="<?php echo $url; ?>/css/responsive.css">
     <link rel="stylesheet" href="<?php echo $url; ?>/css/modo_oscuro.css">
-
+    
     <script>
-        // Sistema MÍNIMO de Modo Claro/Oscuro
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!document.getElementById('themeToggleContainer')) {
-                const toggleContainer = document.createElement('div');
-                toggleContainer.id = 'themeToggleContainer';
-                toggleContainer.className = 'theme-toggle-container';
-                toggleContainer.innerHTML = `
-                    <div class="theme-toggle" id="themeToggle">
-                        <i class="fa-regular fa-sun fa-lg" style="color: #FFA500;"></i>
-                        <div class="toggle-switch"><div class="toggle-slider"></div></div>
-                        <i class="fa-regular fa-moon fa-lg" style="color: #4B0082;"></i>
-                    </div>
-                `;
-                document.body.appendChild(toggleContainer);
-            }
+    // Sistema de Modo Claro/Oscuro
+    document.addEventListener('DOMContentLoaded', function() {
+        // Crear contenedor del toggle si no existe
+        if (!document.getElementById('themeToggleContainer')) {
+            const toggleContainer = document.createElement('div');
+            toggleContainer.id = 'themeToggleContainer';
+            toggleContainer.className = 'theme-toggle-container';
+            toggleContainer.innerHTML = `
+                <div class="theme-toggle" id="themeToggle" title="Cambiar modo claro/oscuro">
+                    <i class="fa-regular fa-sun"></i>
+                    <div class="toggle-switch"><div class="toggle-slider"></div></div>
+                    <i class="fa-regular fa-moon"></i>
+                </div>
+            `;
+            document.body.appendChild(toggleContainer);
+        }
 
-            const themeToggle = document.getElementById('themeToggle');
-            const savedTheme = localStorage.getItem('theme');
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Cargar tema guardado o usar el predeterminado
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Actualizar iconos según el tema
+        updateToggleIcons(savedTheme);
 
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            }
-
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-            });
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateToggleIcons(newTheme);
         });
-    </script>
+
+        function updateToggleIcons(theme) {
+            const sunIcon = themeToggle.querySelector('.fa-sun');
+            const moonIcon = themeToggle.querySelector('.fa-moon');
+            
+            if (theme === 'dark') {
+                sunIcon.className = 'fa-regular fa-sun';
+                moonIcon.className = 'fa-solid fa-moon';
+            } else {
+                sunIcon.className = 'fa-solid fa-sun';
+                moonIcon.className = 'fa-regular fa-moon';
+            }
+        }
+    });
+</script>
 </head>
 
 <body>
@@ -64,9 +99,10 @@ $url = "http://" . $_SERVER['HTTP_HOST'];
             <a class="navbar-brand me-3" href="<?php echo $url; ?>/index.php">
                 <img src="<?php echo $url; ?>/img/logosinfondo.png" class="img-fluid d-block" style="max-width: 120px;" alt="Logo Aura Sport">
             </a>
-            <form class="d-none d-md-flex w-50 mx-4" action="buscar.php" method="GET" style="max-width: 45%;">
+            <!-- Barra de búsqueda -->
+            <form class="d-flex w-50 mx-4 flex-grow-1 search-form" action="<?php echo $url; ?>/buscar.php" method="GET" style="max-width: 45%;">
                 <input class="form-control me-2" type="text" name="busqueda" placeholder="Buscar">
-                <button class="btn btn-dark me-3" type="submit">Buscar</button>
+                <button class="btn btn-dark me-3 flex-shrink-0" type="submit">Buscar</button>
             </form>
             <div class="d-flex gap-3 flex-wrap justify-content-end">
                 <a href="<?php echo $url; ?>/carrito/index.php" class="text-dark fs-4 position-relative text-decoration-none" title="Carrito de compras">
@@ -97,7 +133,6 @@ $url = "http://" . $_SERVER['HTTP_HOST'];
                     <li class="nav-item"><a class="nav-link" href="<?php echo $url; ?>/menu/nosotros.php">Nosotros</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $url; ?>/menu/exclusivo.php">Exclusivo</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $url; ?>/menu/vacantes.php">Vacantes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo $url; ?>/administrador/index.php">Administrador</a></li>
                 </ul>
             </div>
         </div>
