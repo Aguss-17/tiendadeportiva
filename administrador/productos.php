@@ -2,6 +2,20 @@
 require_once '../config/cache.php';
 require_once 'controlador_productos.php';
 include('estructura/cabecera.php');
+
+// ================================
+// PAGINACIÓN OPTIMIZADA
+// ================================
+$totalProductos = count($listaProductos);
+$productosPorPagina = 20;
+$paginaActual = $_GET['pagina'] ?? 1;
+$paginaActual = max(1, (int)$paginaActual); // Seguridad
+
+$totalPaginas = ceil($totalProductos / $productosPorPagina);
+
+// Segmentar productos
+$inicio = ($paginaActual - 1) * $productosPorPagina;
+$productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina);
 ?>
 
 <div class="row">
@@ -63,7 +77,7 @@ include('estructura/cabecera.php');
                         </select>
                     </div>
 
-                    <!-- OFERTA Y VIP EN LA MISMA FILA -->
+                    <!-- OFERTA Y VIP -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label>¿En oferta?</label>
@@ -81,7 +95,7 @@ include('estructura/cabecera.php');
                         </div>
                     </div>
 
-                    <!-- SECCIÓN DE TALLES -->
+                    <!-- TALLES -->
                     <div class="mb-4">
                         <label class="form-label fw-bold">Selección de Talles</label>
                         <div class="row">
@@ -98,7 +112,7 @@ include('estructura/cabecera.php');
                                 <small class="form-text text-muted">Ctrl + clic para múltiples</small>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Pantalones/Calzas/Jogging:</label>
+                                <label class="form-label">Pantalones:</label>
                                 <select name="talles_pantalon[]" class="form-select" multiple size="3">
                                     <option value="Sin talles">Sin talles</option>
                                     <option value="36">36</option>
@@ -110,7 +124,7 @@ include('estructura/cabecera.php');
                                 <small class="form-text text-muted">Ctrl + clic para múltiples</small>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Ropa Infantil:</label>
+                                <label class="form-label">Ropa infantil:</label>
                                 <select name="talles_infantil[]" class="form-select" multiple size="3">
                                     <option value="Sin talles">Sin talles</option>
                                     <option value="2">2</option>
@@ -176,9 +190,11 @@ include('estructura/cabecera.php');
         <div class="card shadow-lg">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-list me-2"></i>LISTA DE PRODUCTOS</h5>
-                <span class="badge bg-light text-dark fs-6">Total: <?= count($listaProductos) ?></span>
+                <span class="badge bg-light text-dark fs-6">Total: <?= $totalProductos ?></span>
             </div>
+
             <div class="card-body px-4">
+
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle">
                         <thead class="table-dark">
@@ -195,8 +211,9 @@ include('estructura/cabecera.php');
                                 <th>Acciones</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <?php foreach ($listaProductos as $producto): ?>
+                            <?php foreach ($productosPaginados as $producto): ?>
                                 <tr>
                                     <td><?= $producto['id'] ?></td>
                                     <td>
@@ -209,29 +226,17 @@ include('estructura/cabecera.php');
                                     <td>
                                         <?php
                                         $catColor = match (strtolower($producto['categoria_nombre'])) {
-                                            'mujer'      => 'bg-danger text-white',    // Rojo fuerte
-                                            'hombre'     => 'bg-primary text-white',   // Azul
-                                            'niños'      => 'bg-success text-white',   // Verde
-                                            'accesorios' => 'bg-warning text-dark',    // Amarillo
-                                            'default'    => 'bg-secondary text-white' // Gris
+                                            'mujer'      => 'bg-danger text-white',
+                                            'hombre'     => 'bg-primary text-white',
+                                            'niños'      => 'bg-success text-white',
+                                            'accesorios' => 'bg-warning text-dark',
+                                            default      => 'bg-secondary text-white',
                                         };
                                         ?>
                                         <span class="badge <?= $catColor ?>"><?= htmlspecialchars($producto['categoria_nombre']) ?></span>
                                     </td>
-                                    <td>
-                                        <?php if ($producto['en_oferta']): ?>
-                                            <span class="badge bg-success">Sí</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">No</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($producto['vip']): ?>
-                                            <span class="badge bg-success text-dark">Sí</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">No</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <td><?= $producto['en_oferta'] ? '<span class="badge bg-success">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?></td>
+                                    <td><?= $producto['vip'] ? '<span class="badge bg-success text-dark">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?></td>
                                     <td><?= htmlspecialchars($producto['talles']) ?></td>
                                     <td><?= htmlspecialchars($producto['colores']) ?></td>
                                     <td>
@@ -248,8 +253,53 @@ include('estructura/cabecera.php');
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
+
                     </table>
                 </div>
+
+                <!-- NAVEGACIÓN DE PAGINACIÓN -->
+                <?php if ($totalPaginas > 1): ?>
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+
+                        <?php if ($paginaActual > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual - 1 ?>">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php
+                        $inicioPag = max(1, $paginaActual - 2);
+                        $finPag    = min($totalPaginas, $paginaActual + 2);
+
+                        for ($i = $inicioPag; $i <= $finPag; $i++):
+                        ?>
+                            <li class="page-item <?= $i == $paginaActual ? 'active' : '' ?>">
+                                <a class="page-link bg-dark text-white" href="?pagina=<?= $i ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($paginaActual < $totalPaginas): ?>
+                            <li class="page-item">
+                                <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual + 1 ?>">
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
+
+                <div class="text-center text-muted mt-2">
+                    Mostrando <?= count($productosPaginados) ?> de <?= $totalProductos ?> productos  
+                    (Página <?= $paginaActual ?> de <?= $totalPaginas ?>)
+                </div>
+                <?php endif; ?>
+
             </div>
         </div>
     </div>

@@ -10,15 +10,7 @@ header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 
 // Política de Contenido (CSP) segura y compatible con tu proyecto
-// Permite Bootstrap, FontAwesome y CDNs externas sin romper el sistema
-header("Content-Security-Policy: 
-    default-src 'self';
-    img-src 'self' data: https:;
-    script-src 'self' https: 'unsafe-inline';
-    style-src 'self' https: 'unsafe-inline';
-    font-src 'self' https: data:;
-    connect-src 'self' https:;
-");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; script-src 'self' https: 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https:;");
 
 // HSTS: fuerza navegación HTTPS (solo si AlwaysData sirve la web por HTTPS)
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -26,7 +18,6 @@ if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
 }
 
 /* SESIÓN + TOKEN CSRF */
-// Iniciar sesión únicamente si no está activa
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -55,7 +46,7 @@ function getConexion() {
         $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $conexion->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        // Mostrar advertencias SOLO en desarrollo
+        // Advertencias SOLO en desarrollo
         if (ENV === 'development') {
             $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
         }
@@ -63,10 +54,7 @@ function getConexion() {
         return $conexion;
 
     } catch (PDOException $ex) {
-        // Registrar error internamente
         error_log("Error de conexión: " . $ex->getMessage());
-
-        // Mensaje genérico seguro para el usuario
         die("Error al conectar con la base de datos. Por favor, intente más tarde.");
     }
 }
@@ -81,6 +69,47 @@ require_once __DIR__ . '/cache.php';
 if (!function_exists('csrf_token')) {
     function csrf_token() {
         return $_SESSION['csrf_token'] ?? '';
+    }
+}
+
+/* --------------- MONITOREO DE CONSULTAS LENTAS ---------------- */
+
+/* REGISTRAR CONSULTAS LENTAS */
+function logConsultaLenta($query, $tiempoEjecucion, $umbral = 0.1) {
+    if ($tiempoEjecucion > $umbral) {
+
+        // cortar query para el error_log principal
+        $queryCorto = substr($query, 0, 200);
+        error_log("🚨 CONSULTA LENTA: {$tiempoEjecucion}s - {$queryCorto}...");
+
+        // archivo específico
+        $logFile = __DIR__ . '/../logs/slow_queries.log';
+        if (!is_dir(dirname($logFile))) {
+            mkdir(dirname($logFile), 0755, true);
+        }
+
+        $logEntry = date('Y-m-d H:i:s') . " | {$tiempoEjecucion}s | {$query}\n";
+        file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+    }
+}
+
+/* EJECUTAR CONSULTA MIDIENTE Y REGISTRAR SI ES LENTA */
+function medirConsulta($conexion, $sql, $params = []) {
+    $inicio = microtime(true);
+
+    try {
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute($params);
+        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $tiempo = microtime(true) - $inicio;
+        logConsultaLenta($sql, $tiempo);
+
+        return $resultado;
+
+    } catch (Exception $e) {
+        error_log("Error en consulta medida: " . $e->getMessage());
+        return [];
     }
 }
 
