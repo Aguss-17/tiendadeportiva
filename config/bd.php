@@ -10,7 +10,7 @@ header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 
 // Política de Contenido (CSP) segura y compatible con tu proyecto
-header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; script-src 'self' https: 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; connect-src 'self' https:;");
+header("Content-Security-Policy: default-src 'self';img-src 'self' data: https:;script-src 'self' https: 'unsafe-inline';style-src 'self' https: 'unsafe-inline';font-src 'self' https: data:;connect-src 'self' https:;frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;child-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;");
 
 // HSTS: fuerza navegación HTTPS (solo si AlwaysData sirve la web por HTTPS)
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -63,7 +63,7 @@ function getConexion() {
 $conexion = getConexion();
 
 /* SISTEMA DE CACHÉ */
-require_once __DIR__ . '/cache.php';
+require_once __DIR__ . '/../config/cache.php';
 
 /* FUNCIÓN GLOBAL PARA OBTENER TOKEN CSRF */
 if (!function_exists('csrf_token')) {
@@ -72,8 +72,7 @@ if (!function_exists('csrf_token')) {
     }
 }
 
-/* --------------- MONITOREO DE CONSULTAS LENTAS ---------------- */
-
+/* MONITOREO DE CONSULTAS LENTAS */
 /* REGISTRAR CONSULTAS LENTAS */
 function logConsultaLenta($query, $tiempoEjecucion, $umbral = 0.1) {
     if ($tiempoEjecucion > $umbral) {

@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../config/bd.php';
 
-// 🔐 Generar token CSRF si no existe
+// Generar token CSRF si no existe
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -21,10 +21,10 @@ if (!isset($_SESSION['user_id'])) {
 $stmt = $conexion->query("SELECT * FROM foro_categorias ORDER BY nombre");
 $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 🧾 Procesar formulario
+// Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // ✅ VALIDAR CSRF
+    // VALIDAR CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
         die("Token CSRF inválido. Por seguridad, recarga la página e intenta nuevamente.");
     }
@@ -87,7 +87,6 @@ include(__DIR__ . '/../estructura/cabecera.php');
                     <?php endif; ?>
 
                     <form method="post" class="needs-validation" novalidate>
-                        <!-- 🔐 Campo CSRF oculto -->
                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
                         <div class="mb-4">

@@ -1,6 +1,6 @@
 <?php
 include(__DIR__ . '/../config/bd.php');
-include(__DIR__ . '/../config/cache.php'); // ← Asegurate que exista e inicialice $cache
+require_once __DIR__ . '/../config/cache.php';
 
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../login.php');

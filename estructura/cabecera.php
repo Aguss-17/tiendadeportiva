@@ -93,8 +93,8 @@ $url = rtrim($root . $basePath, '/');
 </script>
 </head>
 
+<?php include realpath(__DIR__ . '/../administrador/estructura/mejoras_ux.php'); ?>
 <body>
-    <?php include(__DIR__ . '/../../administrador/estructura/mejoras_ux.php'); ?>
     <nav class="navbar navbar-light bg-light navbar-expand-lg px-5 py-3">
         <div class="container-fluid d-flex align-items-center">
             <a class="navbar-brand me-3" href="<?php echo $url; ?>/index.php">

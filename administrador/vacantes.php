@@ -13,9 +13,12 @@ function csrf_token() {
     return $_SESSION['csrf_token'];
 }
 
-// Helper para evitar null en htmlspecialchars
-function h($string) {
-    return htmlspecialchars($string ?? '');
+// Helper para evitar null y arrays en htmlspecialchars
+function h($value) {
+    if (is_array($value)) {
+        return ''; // o implode(', ', $value) si querés mostrar los valores como texto
+    }
+    return htmlspecialchars($value ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
 // Validar token CSRF al recibir POST

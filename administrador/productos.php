@@ -1,5 +1,5 @@
 <?php
-require_once '../config/cache.php';
+require_once __DIR__ . '/../config/cache.php';
 require_once 'controlador_productos.php';
 include('estructura/cabecera.php');
 

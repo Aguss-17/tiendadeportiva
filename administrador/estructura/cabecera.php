@@ -43,9 +43,7 @@ $url = rtrim($root . $basePath, '/');
 <!-- Navbar principal -->
 <nav class="navbar navbar-light bg-light navbar-expand-lg px-4 py-3 shadow-sm border-bottom">
 <div class="container-fluid">
-      <a class="navbar-brand me-5" href="/administrador/inicio.php">
-            <img src="<?php echo $url; ?>/img/logosinfondo.png" class="img-fluid d-block" style="max-width: 120px;" alt="Logo Aura Sport">
-      </a>
+      <img src="<?php echo $url; ?>/img/logosinfondo.png" class="img-fluid d-block" style="max-width: 120px;" alt="Logo Aura Sport">
 
       <div class="navbar-nav flex-row gap-3 align-items-center">
       <a href="<?php echo $url; ?>/administrador/inicio.php" 
