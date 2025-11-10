@@ -26,14 +26,14 @@ if (empty($busqueda)) {
         if ($resultadosCache) {
             $resultados = $resultadosCache['resultados'];
             $totalResultados = $resultadosCache['total'];
-        } else {
+        } else 
             // CONSULTA OPTIMIZADA - Sin SOUNDEX que es muy lento
             $sqlCount = "SELECT COUNT(*) as total 
                         FROM productos p
                         JOIN categorias c ON p.id_categoria = c.id
                         WHERE p.nombre LIKE :busqueda 
-                           OR p.descripcion LIKE :busqueda 
-                           OR c.nombre LIKE :busqueda";
+                        OR p.descripcion LIKE :busqueda 
+                        OR c.nombre LIKE :busqueda";
 
             $stmtCount = $conexion->prepare($sqlCount);
             $stmtCount->bindValue(':busqueda', "%$busqueda%", PDO::PARAM_STR);
@@ -41,14 +41,14 @@ if (empty($busqueda)) {
             $totalResultados = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
 
             // CONSULTA PRINCIPAL OPTIMIZADA
-            if ($totalResultados > 0) {
+            if ($totalResultados > 0) 
                 $sql = "SELECT p.id, p.nombre, p.descripcion, p.precio, p.imagen, p.en_oferta,
-                               c.nombre AS nombre_categoria 
+                            c.nombre AS nombre_categoria 
                         FROM productos p
                         JOIN categorias c ON p.id_categoria = c.id
                         WHERE p.nombre LIKE :busqueda 
-                           OR p.descripcion LIKE :busqueda 
-                           OR c.nombre LIKE :busqueda
+                        OR p.descripcion LIKE :busqueda 
+                        OR c.nombre LIKE :busqueda
                         ORDER BY 
                             CASE 
                                 WHEN p.nombre LIKE :busqueda_exacta THEN 1
@@ -71,8 +71,8 @@ if (empty($busqueda)) {
                     'resultados' => $resultados,
                     'total' => $totalResultados
                 ], 300); // 5 minutos
-            }
-        }
+            
+        
 
     } catch (PDOException $e) {
         error_log("Error en búsqueda: " . $e->getMessage());

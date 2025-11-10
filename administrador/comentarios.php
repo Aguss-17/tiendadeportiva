@@ -1,6 +1,7 @@
 <?php
 // administrador/comentarios.php
 include(__DIR__ . '/../config/bd.php');
+
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../login.php');
     exit();
@@ -30,10 +31,12 @@ switch ($accion) {
         $sentenciaSQL = $conexion->prepare("UPDATE comentarios SET estado = 'aprobado' WHERE id = :id");
         $sentenciaSQL->execute([':id' => $comentario_id]);
         break;
+
     case 'rechazar':
         $sentenciaSQL = $conexion->prepare("UPDATE comentarios SET estado = 'rechazado' WHERE id = :id");
         $sentenciaSQL->execute([':id' => $comentario_id]);
         break;
+
     case 'eliminar':
         $sentenciaSQL = $conexion->prepare("DELETE FROM comentarios WHERE id = :id");
         $sentenciaSQL->execute([':id' => $comentario_id]);
@@ -58,9 +61,11 @@ include('estructura/cabecera.php');
         <div class="card-header bg-dark text-white">
             <h5 class="mb-0"><i class="fas fa-comments me-2"></i>GESTIÓN DE COMENTARIOS</h5>
         </div>
+
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped">
+
+                <table class="table table-striped" id="tablaComentarios">
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
@@ -73,6 +78,7 @@ include('estructura/cabecera.php');
                             <th>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <?php foreach($comentarios as $comentario): ?>
                         <tr>
@@ -82,55 +88,83 @@ include('estructura/cabecera.php');
                             <td><?= htmlspecialchars($comentario['email']) ?></td>
                             <td><?= nl2br(htmlspecialchars(substr($comentario['comentario'], 0, 100))) ?>...</td>
                             <td><?= date('d/m/Y H:i', strtotime($comentario['fecha_creacion'])) ?></td>
+
                             <td>
                                 <?php 
                                 $estados = [
                                     'pendiente' => 'warning',
-                                    'aprobado' => 'success', 
+                                    'aprobado' => 'success',
                                     'rechazado' => 'danger'
                                 ];
                                 $color = $estados[$comentario['estado']] ?? 'secondary';
                                 ?>
                                 <span class="badge bg-<?= $color ?>"><?= ucfirst($comentario['estado']) ?></span>
                             </td>
+
                             <td>
                                 <div class="d-flex gap-1">
+
+                                    <!-- Aprobar -->
                                     <?php if($comentario['estado'] != 'aprobado'): ?>
                                     <form method="POST">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
-                                        <button type="submit" name="accion" value="aprobar" class="btn btn-sm btn-success" title="Aprobar">
+                                        <button type="submit" name="accion" value="aprobar"
+                                                class="btn btn-sm btn-success" title="Aprobar">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
                                     <?php endif; ?>
-                                    
+
+                                    <!-- Rechazar -->
                                     <?php if($comentario['estado'] != 'rechazado'): ?>
                                     <form method="POST">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
-                                        <button type="submit" name="accion" value="rechazar" class="btn btn-sm btn-warning" title="Rechazar">
+                                        <button type="submit" name="accion" value="rechazar"
+                                                class="btn btn-sm btn-warning" title="Rechazar">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>
                                     <?php endif; ?>
-                                    
+
+                                    <!--  Eliminar con data attributes agregados -->
                                     <form method="POST">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
-                                        <button type="submit" name="accion" value="eliminar" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Eliminar este comentario?')">
+
+                                        <button type="submit" 
+                                                name="accion" 
+                                                value="eliminar"
+                                                class="btn btn-sm btn-danger"
+                                                title="Eliminar"
+                                                onclick="return confirm('¿Eliminar este comentario?')"
+
+                                                data-nombre="comentario"
+                                                data-id="<?= $comentario['id'] ?>">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+
                                 </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
+
                 </table>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Script agregado -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof uxManager !== 'undefined') {
+        uxManager.inicializarBusquedaFiltros('tablaComentarios');
+    }
+});
+</script>
 
 <?php include('estructura/pie.php'); ?>

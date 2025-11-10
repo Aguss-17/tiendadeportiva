@@ -3,9 +3,7 @@ require_once '../config/cache.php';
 require_once 'controlador_productos.php';
 include('estructura/cabecera.php');
 
-// ================================
 // PAGINACIÓN OPTIMIZADA
-// ================================
 $totalProductos = count($listaProductos);
 $productosPorPagina = 20;
 $paginaActual = $_GET['pagina'] ?? 1;
@@ -196,7 +194,7 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
             <div class="card-body px-4">
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
+                    <table class="table table-striped table-hover align-middle" id="tablaProductos">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
@@ -304,5 +302,13 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar búsqueda y filtros para esta tabla
+    if (typeof uxManager !== 'undefined') {
+        uxManager.inicializarBusquedaFiltros('tablaProductos');
+    }
+});
+</script>
 
 <?php include('estructura/pie.php'); ?>
