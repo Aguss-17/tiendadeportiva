@@ -131,7 +131,7 @@ class UXManager {
         });
     }
 
-    // 2. SISTEMA DE LOADING
+    /* // 2. SISTEMA DE LOADING
     setupLoadingGlobal() {
         // Manager de loading
         window.loadingManager = {
@@ -165,7 +165,7 @@ class UXManager {
             loadingManager.show();
             return originalFetch(...args).finally(() => loadingManager.hide());
         };
-    }
+    } */
 
     // 3. SISTEMA DE BÚSQUEDA Y FILTROS (se llama cuando se necesita)
     inicializarBusquedaFiltros(tableId) {
