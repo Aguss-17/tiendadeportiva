@@ -243,9 +243,13 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                                             <button type="submit" name="accion" value="Seleccionar" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button type="submit" name="accion" value="Borrar" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro desea eliminar el producto <?= htmlspecialchars($producto['nombre']) ?> (ID: <?= $producto['id'] ?>)?');">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <form method="POST" class="d-inline" onsubmit="return confirmarEliminacionProducto(<?= $producto['id'] ?>, '<?= htmlspecialchars(addslashes($producto['nombre'])) ?>')">
+                                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                                <input type="hidden" name="txtID" value="<?= $producto['id'] ?>">
+                                                <button type="submit" name="accion" value="Borrar" class="btn btn-danger btn-sm" title="Eliminar">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            </form>
                                         </form>
                                     </td>
                                 </tr>
@@ -257,45 +261,45 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
 
                 <!-- NAVEGACIÓN DE PAGINACIÓN -->
                 <?php if ($totalPaginas > 1): ?>
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
 
-                        <?php if ($paginaActual > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual - 1 ?>">
-                                    <i class="fas fa-chevron-left"></i> Anterior
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if ($paginaActual > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual - 1 ?>">
+                                        <i class="fas fa-chevron-left"></i> Anterior
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php
-                        $inicioPag = max(1, $paginaActual - 2);
-                        $finPag    = min($totalPaginas, $paginaActual + 2);
+                            <?php
+                            $inicioPag = max(1, $paginaActual - 2);
+                            $finPag    = min($totalPaginas, $paginaActual + 2);
 
-                        for ($i = $inicioPag; $i <= $finPag; $i++):
-                        ?>
-                            <li class="page-item <?= $i == $paginaActual ? 'active' : '' ?>">
-                                <a class="page-link bg-dark text-white" href="?pagina=<?= $i ?>">
-                                    <?= $i ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
+                            for ($i = $inicioPag; $i <= $finPag; $i++):
+                            ?>
+                                <li class="page-item <?= $i == $paginaActual ? 'active' : '' ?>">
+                                    <a class="page-link bg-dark text-white" href="?pagina=<?= $i ?>">
+                                        <?= $i ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
 
-                        <?php if ($paginaActual < $totalPaginas): ?>
-                            <li class="page-item">
-                                <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual + 1 ?>">
-                                    Siguiente <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if ($paginaActual < $totalPaginas): ?>
+                                <li class="page-item">
+                                    <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual + 1 ?>">
+                                        Siguiente <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                    </ul>
-                </nav>
+                        </ul>
+                    </nav>
 
-                <div class="text-center text-muted mt-2">
-                    Mostrando <?= count($productosPaginados) ?> de <?= $totalProductos ?> productos  
-                    (Página <?= $paginaActual ?> de <?= $totalPaginas ?>)
-                </div>
+                    <div class="text-center text-muted mt-2">
+                        Mostrando <?= count($productosPaginados) ?> de <?= $totalProductos ?> productos
+                        (Página <?= $paginaActual ?> de <?= $totalPaginas ?>)
+                    </div>
                 <?php endif; ?>
 
             </div>
@@ -303,12 +307,15 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
     </div>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar búsqueda y filtros para esta tabla
-    if (typeof uxManager !== 'undefined') {
-        uxManager.inicializarBusquedaFiltros('tablaProductos');
-    }
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar búsqueda y filtros para esta tabla
+        if (typeof uxManager !== 'undefined') {
+            uxManager.inicializarBusquedaFiltros('tablaProductos');
+        }
+    });
+    function confirmarEliminacionProducto(id, nombre) {
+    return confirm(`¿Está seguro de que desea eliminar el producto "${nombre}" (ID: ${id})?`);
+}
 </script>
 
 <?php include('estructura/pie.php'); ?>

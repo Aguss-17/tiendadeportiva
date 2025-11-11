@@ -107,23 +107,47 @@ switch ($txtAccion) {
         break;
 
 
-    case "Borrar":
-        $sentenciaSQL = $conexion->prepare("SELECT imagen FROM posts WHERE id=:id");
-        $sentenciaSQL->execute([':id' => $txtID]);
-        $post = $sentenciaSQL->fetch(PDO::FETCH_LAZY);
+    // En la sección case "Borrar":
+case "Borrar":
+    error_log("Intentando borrar post con ID: " . $txtID);
 
-        if (!empty($post['imagen']) && file_exists($directorioUploads . $post['imagen'])) {
-            @unlink($directorioUploads . $post['imagen']);
+    if (empty($txtID) || $txtID == 0) {
+        header('Location: blog.php?error=ID no válido');
+        exit();
+    }
+
+    // Verificar que el post existe
+    $sentenciaSQL = $conexion->prepare("SELECT imagen FROM posts WHERE id=:id");
+    $sentenciaSQL->execute([':id' => $txtID]);
+    $post = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+
+    if (!$post) {
+        header('Location: blog.php?error=El post no existe');
+        exit();
+    }
+
+    // Eliminar imagen si existe
+    if (!empty($post['imagen']) && file_exists($directorioUploads . $post['imagen'])) {
+        if (!unlink($directorioUploads . $post['imagen'])) {
+            error_log("Error al eliminar imagen: " . $directorioUploads . $post['imagen']);
         }
+    }
 
-        $sentenciaSQL = $conexion->prepare("DELETE FROM posts WHERE id=:id");
-        $sentenciaSQL->execute([':id' => $txtID]);
+    // Eliminar el post
+    $sentenciaSQL = $conexion->prepare("DELETE FROM posts WHERE id=:id");
+    $sentenciaSQL->execute([':id' => $txtID]);
 
+    $filasAfectadas = $sentenciaSQL->rowCount();
+    error_log("Filas afectadas al borrar post: " . $filasAfectadas);
+
+    if ($filasAfectadas > 0) {
         // Limpia cache al borrar
         $cache->delete('posts_lista_admin');
-
         header('Location: blog.php?success=1');
-        exit();
+    } else {
+        header('Location: blog.php?error=No se pudo eliminar el post');
+    }
+    exit();
 }
 
 
@@ -285,7 +309,7 @@ include('../administrador/estructura/cabecera.php');
                                     <td><?= date('d/m/Y', strtotime($post['fecha_publicacion'])) ?></td>
                                     <td>
                                         <div class="d-flex gap-2 align-items-center">
-                                            <form method="POST">
+                                            <form method="POST" class="d-inline">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <input type="hidden" name="txtID" value="<?= $post['id'] ?>">
                                                 <button type="submit" name="accion" value="Seleccionar" class="btn btn-sm btn-primary" title="Editar">
@@ -295,10 +319,11 @@ include('../administrador/estructura/cabecera.php');
                                             <a href="vista_previa.php?id=<?= $post['id'] ?>" class="btn btn-sm btn-info" title="Previsualizar">
                                                 <i class="fas fa-eye me-1"></i> Ver
                                             </a>
-                                            <form method="POST">
+                                            <form method="POST" class="d-inline" id="formEliminar_<?= $post['id'] ?>">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <input type="hidden" name="txtID" value="<?= $post['id'] ?>">
-                                                <button type="submit" name="accion" value="Borrar" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Eliminar este post?')">
+                                                <button type="submit" name="accion" value="Borrar" class="btn btn-sm btn-danger" title="Eliminar"
+                                                    onclick="return confirmarEliminacion(<?= $post['id'] ?>, '<?= htmlspecialchars(addslashes($post['titulo'])) ?>')">
                                                     <i class="fas fa-trash-alt me-1"></i> Eliminar
                                                 </button>
                                             </form>
@@ -339,7 +364,6 @@ include('../administrador/estructura/cabecera.php');
     });
 </script>
 <script>
-    // SOLO ESTE PEQUEÑO SCRIPT AL FINAL
     document.addEventListener('DOMContentLoaded', function() {
         // Inicializar búsqueda y filtros para esta tabla
         if (typeof uxManager !== 'undefined') {

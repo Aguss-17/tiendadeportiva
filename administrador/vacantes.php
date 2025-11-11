@@ -95,10 +95,36 @@ switch ($txtAccion) {
         break;
 
     case "Borrar":
-        $sentenciaSQL = $conexion->prepare("DELETE FROM vacantes WHERE id=:id");
-        $sentenciaSQL->execute([':id' => $txtID]);
-        header('Location: vacantes.php?success=1');
+    // DEBUG
+    error_log("Intentando borrar vacante con ID: " . $txtID);
+    
+    if (empty($txtID)) {
+        header('Location: vacantes.php?error=ID no proporcionado');
         exit();
+    }
+
+    // Verificar que la vacante existe
+    $sentenciaSQL = $conexion->prepare("SELECT id FROM vacantes WHERE id=:id");
+    $sentenciaSQL->execute([':id' => $txtID]);
+    $vacante = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+
+    if (!$vacante) {
+        header('Location: vacantes.php?error=La vacante no existe');
+        exit();
+    }
+
+    $sentenciaSQL = $conexion->prepare("DELETE FROM vacantes WHERE id=:id");
+    $sentenciaSQL->execute([':id' => $txtID]);
+    
+    $filasAfectadas = $sentenciaSQL->rowCount();
+    error_log("Filas afectadas al borrar vacante: " . $filasAfectadas);
+    
+    if ($filasAfectadas > 0) {
+        header('Location: vacantes.php?success=1');
+    } else {
+        header('Location: vacantes.php?error=No se pudo eliminar la vacante');
+    }
+    exit();
 }
 
 // Lista de vacantes

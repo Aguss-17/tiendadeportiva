@@ -72,13 +72,40 @@ switch ($txtAccion) {
         break;
 
     case "Borrar":
-        $imagen = $modelo->obtenerImagenProducto($txtID);
-        if ($imagen && file_exists("../img/" . $imagen)) {
-            unlink("../img/" . $imagen);
-        }
-        $modelo->eliminar($txtID);
-        $mensajeSuccess = "🗑️ Producto eliminado correctamente.";
+    error_log("Intentando borrar producto con ID: " . $txtID);
+    
+    if (empty($txtID) || $txtID == 0) {
+        $errores[] = "ID no válido";
         break;
+    }
+
+    // Verificar que el producto existe
+    $producto = $modelo->obtenerPorId($txtID);
+    
+    if (!$producto) {
+        $errores[] = "El producto no existe";
+        break;
+    }
+    
+    // Eliminar imagen si existe
+    $imagen = $producto['imagen'];
+    if ($imagen && file_exists("../img/" . $imagen)) {
+        if (!unlink("../img/" . $imagen)) {
+            error_log("Error al eliminar imagen del producto: ../img/" . $imagen);
+        }
+    }
+    
+    // Intentar eliminar
+    $resultado = $modelo->eliminar($txtID);
+    
+    if ($resultado) {
+        $mensajeSuccess = "🗑️ Producto eliminado correctamente.";
+        // Recargar la lista de productos
+        $listaProductos = $modelo->obtenerTodos();
+    } else {
+        $errores[] = "No se pudo eliminar el producto. Posiblemente no existe o hay restricciones de base de datos.";
+    }
+    break;
 
     case "Seleccionar":
         $productoSel = $modelo->obtenerPorId($txtID);
