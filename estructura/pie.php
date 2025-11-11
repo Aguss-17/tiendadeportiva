@@ -86,11 +86,11 @@ $url = rtrim($root . $basePath, '/');
                 </ul>
             </article>
             <p class="mb-0 small text-center text-muted">
-                CRs: Micaela Monsserrat, Agustina Montiel, Sabrina Flores
                 <a href="<?php echo $url; ?>/administrador/index.php"
                     style="color: inherit; text-decoration: none; opacity: 0.2;">
                     ©
                 </a>
+                Micaela Monsserrat, Agustina Montiel, Sabrina Flores
             </p>
 
         </div>
