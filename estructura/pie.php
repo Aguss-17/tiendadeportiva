@@ -72,8 +72,8 @@ $url = rtrim($root . $basePath, '/');
                 <div class="d-flex justify-content-center align-items-center gap-4 my-4">
                     <a href="https://www.instagram.com/aurasport.mc/" class="text-dark" title="aurasport.mc" style="font-size: 3rem;"><i class="bi bi-instagram icono-footer"></i></a>
                     <a href="https://www.facebook.com/aura.sport.2025" class="text-dark" title="aura.sport.2025" style="font-size: 3rem;"><i class="bi bi-facebook icono-footer"></i></a>
-                    <a href="https://wa.me/54377544-9624" class="text-dark" title="+54 3775 44-9624" style="font-size: 3rem;"><i class="bi bi-whatsapp icono-footer"></i></a>
-                    <a href="mailto:aurasport.mc@gmail.com" class="text-dark" title="aurasport.mc@gmail.com" style="font-size: 3rem;"><i class="bi bi-envelope-at icono-footer"></i></a>
+                    <a href="https://wa.me/543775449624" class="text-dark" title="+54 3775 44-9624" style="font-size: 3rem;"><i class="bi bi-whatsapp icono-footer"></i></a>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=aurasport.mc@gmail.com" target="_blank" class="text-dark" title="aurasport.mc@gmail.com" style="font-size: 3rem;"><i class="bi bi-envelope-at icono-footer"></i></a>
                 </div>
             </article>
 
