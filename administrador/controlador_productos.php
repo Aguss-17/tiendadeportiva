@@ -1,11 +1,14 @@
 <?php
-require_once '../config/bd.php';
+require_once __DIR__ . '/../config/bd.php';   
+require_once __DIR__ . '/../config/cache.php';
 require_once '../modelos/modelo_productos.php';
 
 $modelo = new ModeloProductos($conexion);
 
 $errores = [];
 $mensajeSuccess = "";
+
+// Datos principales
 $txtAccion = $_POST['accion'] ?? "";
 $txtID = $_POST['txtID'] ?? "";
 $txtNombre = $_POST['txtNombre'] ?? "";
@@ -14,23 +17,35 @@ $txtPrecio = $_POST['txtPrecio'] ?? "";
 $txtCategoria = $_POST['txtCategoria'] ?? "";
 $txtOferta = isset($_POST['en_oferta']) ? 1 : 0;
 $txtVIP = isset($_POST['txtVIP']) ? 1 : 0;
+
+// Talles y colores
 $txtTallesRemera = $_POST['txtTallesRemera'] ?? [];
 $txtTallesPantalon = $_POST['txtTallesPantalon'] ?? [];
 $txtTallesNinos = $_POST['txtTallesNinos'] ?? [];
 $txtColores = $_POST['txtColores'] ?? [];
 $txtImagenActual = $_POST['imagen_actual'] ?? "";
 
-// Unificar talles en un solo texto
+// Unificar talles
 $txtTalles = array_merge($txtTallesRemera, $txtTallesPantalon, $txtTallesNinos);
 $tallesTexto = implode(",", $txtTalles);
 $coloresTexto = implode(",", $txtColores);
+
+// Paginación
+$paginaActual = $_GET['pagina'] ?? 1;
+$productosPorPagina = 20;
+
+// Cuando se modifica la BD → limpiar cache
+if ($txtAccion && in_array($txtAccion, ['Agregar', 'Modificar', 'Borrar'])) {
+    clearProductCache();
+}
 
 // Procesar imagen
 if (!empty($_FILES['imagen']['name'])) {
     $nombreArchivo = time() . "_" . basename($_FILES["imagen"]["name"]);
     $rutaDestino = "../img/" . $nombreArchivo;
+
     if (move_uploaded_file($_FILES["imagen"]["tmp_name"], $rutaDestino)) {
-        // Eliminar imagen anterior si existe
+        // Eliminar imagen anterior
         if (!empty($txtImagenActual) && file_exists("../img/" . $txtImagenActual)) {
             unlink("../img/" . $txtImagenActual);
         }
@@ -39,8 +54,9 @@ if (!empty($_FILES['imagen']['name'])) {
     $nombreArchivo = $txtImagenActual;
 }
 
-// Procesar acciones
+// Acciones CRUD
 switch ($txtAccion) {
+
     case "Agregar":
         $modelo->crear([
             'nombre' => $txtNombre,
@@ -53,7 +69,7 @@ switch ($txtAccion) {
             'talles' => $tallesTexto,
             'colores' => $coloresTexto
         ]);
-        $mensajeSuccess = "Producto agregado correctamente.";
+        $mensajeSuccess = "✅ Producto agregado correctamente.";
         break;
 
     case "Modificar":
@@ -68,44 +84,17 @@ switch ($txtAccion) {
             'talles' => $tallesTexto,
             'colores' => $coloresTexto
         ]);
-        $mensajeSuccess = "Producto actualizado correctamente.";
+        $mensajeSuccess = "✅ Producto actualizado correctamente.";
         break;
 
     case "Borrar":
-    error_log("Intentando borrar producto con ID: " . $txtID);
-    
-    if (empty($txtID) || $txtID == 0) {
-        $errores[] = "ID no válido";
-        break;
-    }
-
-    // Verificar que el producto existe
-    $producto = $modelo->obtenerPorId($txtID);
-    
-    if (!$producto) {
-        $errores[] = "El producto no existe";
-        break;
-    }
-    
-    // Eliminar imagen si existe
-    $imagen = $producto['imagen'];
-    if ($imagen && file_exists("../img/" . $imagen)) {
-        if (!unlink("../img/" . $imagen)) {
-            error_log("Error al eliminar imagen del producto: ../img/" . $imagen);
+        $imagen = $modelo->obtenerImagenProducto($txtID);
+        if ($imagen && file_exists("../img/" . $imagen)) {
+            unlink("../img/" . $imagen);
         }
-    }
-    
-    // Intentar eliminar
-    $resultado = $modelo->eliminar($txtID);
-    
-    if ($resultado) {
+        $modelo->eliminar($txtID);
         $mensajeSuccess = "🗑️ Producto eliminado correctamente.";
-        // Recargar la lista de productos
-        $listaProductos = $modelo->obtenerTodos();
-    } else {
-        $errores[] = "No se pudo eliminar el producto. Posiblemente no existe o hay restricciones de base de datos.";
-    }
-    break;
+        break;
 
     case "Seleccionar":
         $productoSel = $modelo->obtenerPorId($txtID);
@@ -124,7 +113,35 @@ switch ($txtAccion) {
         break;
 }
 
-// Cargar listas
-$categorias = $modelo->obtenerCategorias();
-$listaProductos = $modelo->obtenerTodos();
+// Cargar listas con caché y paginación
+// Categorías (cache 2 horas)
+$categorias = $cache->cachedQuery(
+    $conexion,
+    "SELECT * FROM categorias ORDER BY nombre ASC",
+    [],
+    7200
+);
+
+// Total productos
+$totalProductos = $cache->cachedQuery(
+    $conexion,
+    "SELECT COUNT(*) as total FROM productos",
+    [],
+    300
+)[0]['total'] ?? 0;
+
+// Datos de paginación calculados
+$pagination = getPagination($totalProductos, $paginaActual, $productosPorPagina);
+
+// Traer productos paginados con cache
+$listaProductos = $cache->cachedPagination(
+    $conexion,
+    "SELECT p.*, c.nombre AS categoria_nombre
+    FROM productos p
+    LEFT JOIN categorias c ON p.id_categoria = c.id
+    ORDER BY p.id DESC",
+    [],
+    $paginaActual,
+    $productosPorPagina
+);
 ?>

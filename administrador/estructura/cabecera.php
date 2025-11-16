@@ -39,7 +39,6 @@ $url = rtrim($root . $basePath, '/');
 </head>
 
 <body>
-      <?php include(__DIR__ . '/../estructura/mejoras_ux.php'); ?>
 <!-- Navbar principal -->
 <nav class="navbar navbar-light bg-light navbar-expand-lg px-4 py-3 shadow-sm border-bottom">
 <div class="container-fluid">

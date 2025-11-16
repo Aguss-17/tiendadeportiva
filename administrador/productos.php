@@ -3,17 +3,55 @@ require_once __DIR__ . '/../config/cache.php';
 require_once 'controlador_productos.php';
 include('estructura/cabecera.php');
 
-// PAGINACIÓN OPTIMIZADA
-$totalProductos = count($listaProductos);
-$productosPorPagina = 20;
-$paginaActual = $_GET['pagina'] ?? 1;
-$paginaActual = max(1, (int)$paginaActual); // Seguridad
+// BÚSQUEDA Y FILTROS
+$busqueda = $_GET['busqueda'] ?? '';
+$filtroCategoria = $_GET['categoria'] ?? '';
+$filtroOferta = $_GET['oferta'] ?? '';
 
-$totalPaginas = ceil($totalProductos / $productosPorPagina);
+$whereConditions = [];
+$params = [];
 
-// Segmentar productos
-$inicio = ($paginaActual - 1) * $productosPorPagina;
-$productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina);
+if (!empty($busqueda)) {
+    $whereConditions[] = "(p.nombre LIKE :busqueda OR p.descripcion LIKE :busqueda)";
+    $params[':busqueda'] = "%" . $busqueda . "%";
+}
+
+if (!empty($filtroCategoria)) {
+    $whereConditions[] = "p.id_categoria = :categoria";
+    $params[':categoria'] = $filtroCategoria;
+}
+
+if (!empty($filtroOferta)) {
+    $whereConditions[] = "p.en_oferta = :oferta";
+    $params[':oferta'] = $filtroOferta;
+}
+
+$whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
+
+// Total productos filtrados
+$totalProductos = $cache->cachedQuery(
+    $conexion,
+    "SELECT COUNT(*) as total FROM productos p $whereClause",
+    $params,
+    300
+)[0]['total'] ?? 0;
+
+// Productos paginados
+$sql = "SELECT p.*, c.nombre AS categoria_nombre
+        FROM productos p
+        LEFT JOIN categorias c ON p.id_categoria = c.id
+        $whereClause
+        ORDER BY p.id DESC
+        LIMIT :limit OFFSET :offset";
+
+$listaProductos = $cache->cachedPagination(
+    $conexion,
+    $sql,
+    $params,
+    $paginaActual,
+    $productosPorPagina
+);
+
 ?>
 
 <div class="row">
@@ -27,7 +65,7 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
 
                 <!-- Mensajes -->
                 <?php if (!empty($mensajeSuccess)): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show">
                         <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($mensajeSuccess) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -37,7 +75,9 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i><strong>Errores:</strong>
                         <ul class="mb-0 mt-2">
-                            <?php foreach ($errores as $error): ?><li><?= htmlspecialchars($error) ?></li><?php endforeach; ?>
+                            <?php foreach ($errores as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
                         </ul>
                     </div>
                 <?php endif; ?>
@@ -84,6 +124,7 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                                 <option value="1" <?= $txtOferta == 1 ? 'selected' : '' ?>>Sí</option>
                             </select>
                         </div>
+
                         <div class="col-md-6">
                             <label>Producto VIP</label>
                             <select name="txtVIP" class="form-select">
@@ -97,6 +138,7 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                     <div class="mb-4">
                         <label class="form-label fw-bold">Selección de Talles</label>
                         <div class="row">
+
                             <div class="col-md-4">
                                 <label class="form-label">Remeras/Camisetas:</label>
                                 <select name="talles_remera[]" class="form-select" multiple size="3">
@@ -107,10 +149,10 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                                     <option value="L">L</option>
                                     <option value="XL">XL</option>
                                 </select>
-                                <small class="form-text text-muted">Ctrl + clic para múltiples</small>
                             </div>
+
                             <div class="col-md-4">
-                                <label class="form-label">Pantalones:</label>
+                                <label class="form-label">Pantalones/Calzas/Jogging:</label>
                                 <select name="talles_pantalon[]" class="form-select" multiple size="3">
                                     <option value="Sin talles">Sin talles</option>
                                     <option value="36">36</option>
@@ -119,10 +161,10 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                                     <option value="42">42</option>
                                     <option value="44">44</option>
                                 </select>
-                                <small class="form-text text-muted">Ctrl + clic para múltiples</small>
                             </div>
+
                             <div class="col-md-4">
-                                <label class="form-label">Ropa infantil:</label>
+                                <label class="form-label">Ropa Infantil:</label>
                                 <select name="talles_infantil[]" class="form-select" multiple size="3">
                                     <option value="Sin talles">Sin talles</option>
                                     <option value="2">2</option>
@@ -131,7 +173,6 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                                     <option value="8">8</option>
                                     <option value="10">10</option>
                                 </select>
-                                <small class="form-text text-muted">Ctrl + clic para múltiples</small>
                             </div>
                         </div>
                     </div>
@@ -149,7 +190,6 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                             <option value="Gira">Gira</option>
                             <option value="Unisex">Unisex</option>
                         </select>
-                        <small class="form-text text-muted">Ctrl + clic para múltiples</small>
                     </div>
 
                     <div class="mb-3">
@@ -193,8 +233,61 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
 
             <div class="card-body px-4">
 
+                <!-- FILTROS Y BÚSQUEDA -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form method="GET" class="row g-3 align-items-end">
+
+                            <div class="col-md-4">
+                                <label class="form-label">Buscar</label>
+                                <input type="text" class="form-control" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Nombre o descripción...">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Categoría</label>
+                                <select name="categoria" class="form-select">
+                                    <option value="">Todas</option>
+                                    <?php foreach ($categorias as $cat): ?>
+                                        <option value="<?= $cat['id'] ?>" <?= $filtroCategoria == $cat['id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($cat['nombre']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Oferta</label>
+                                <select name="oferta" class="form-select">
+                                    <option value="">Todos</option>
+                                    <option value="1" <?= $filtroOferta === '1' ? 'selected' : '' ?>>En oferta</option>
+                                    <option value="0" <?= $filtroOferta === '0' ? 'selected' : '' ?>>Sin oferta</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-filter me-1"></i> Filtrar
+                                </button>
+                            </div>
+
+                            <?php if (!empty($busqueda) || !empty($filtroCategoria) || !empty($filtroOferta)): ?>
+                            <div class="col-12">
+                                <a href="productos.php" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i> Limpiar filtros
+                                </a>
+                                <small class="text-muted ms-2">
+                                    <?= count($listaProductos) ?> resultado(s) encontrado(s)
+                                </small>
+                            </div>
+                            <?php endif; ?>
+
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABLA -->
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle" id="tablaProductos">
+                    <table class="table table-striped table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
@@ -209,113 +302,90 @@ $productosPaginados = array_slice($listaProductos, $inicio, $productosPorPagina)
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            <?php foreach ($productosPaginados as $producto): ?>
-                                <tr>
-                                    <td><?= $producto['id'] ?></td>
-                                    <td>
-                                        <?php if (!empty($producto['imagen'])): ?>
-                                            <img src="../img/<?= $producto['imagen'] ?>" width="50">
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($producto['nombre']) ?></td>
-                                    <td>$<?= number_format($producto['precio'], 2) ?></td>
-                                    <td>
-                                        <?php
-                                        $catColor = match (strtolower($producto['categoria_nombre'])) {
-                                            'mujer'      => 'bg-danger text-white',
-                                            'hombre'     => 'bg-primary text-white',
-                                            'niños'      => 'bg-success text-white',
-                                            'accesorios' => 'bg-warning text-dark',
-                                            default      => 'bg-secondary text-white',
-                                        };
-                                        ?>
-                                        <span class="badge <?= $catColor ?>"><?= htmlspecialchars($producto['categoria_nombre']) ?></span>
-                                    </td>
-                                    <td><?= $producto['en_oferta'] ? '<span class="badge bg-success">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?></td>
-                                    <td><?= $producto['vip'] ? '<span class="badge bg-success text-dark">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?></td>
-                                    <td><?= htmlspecialchars($producto['talles']) ?></td>
-                                    <td><?= htmlspecialchars($producto['colores']) ?></td>
-                                    <td>
-                                        <form method="POST" class="d-flex gap-1">
-                                            <input type="hidden" name="txtID" value="<?= $producto['id'] ?>">
-                                            <button type="submit" name="accion" value="Seleccionar" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <form method="POST" class="d-inline" onsubmit="return confirmarEliminacionProducto(<?= $producto['id'] ?>, '<?= htmlspecialchars(addslashes($producto['nombre'])) ?>')">
-                                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                                <input type="hidden" name="txtID" value="<?= $producto['id'] ?>">
-                                                <button type="submit" name="accion" value="Borrar" class="btn btn-danger btn-sm" title="Eliminar">
-                                                    <i class="fas fa-trash"></i> Eliminar
-                                                </button>
-                                            </form>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
 
+                        <?php foreach ($listaProductos as $producto): ?>
+                            <tr>
+                                <td><?= $producto['id'] ?></td>
+                                <td>
+                                    <?php if (!empty($producto['imagen'])): ?>
+                                        <img src="../img/<?= $producto['imagen'] ?>" width="50">
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($producto['nombre']) ?></td>
+                                <td>$<?= number_format($producto['precio'], 2) ?></td>
+                                <td>
+                                    <?php
+                                    $catColor = match (strtolower($producto['categoria_nombre'])) {
+                                        'mujer'      => 'bg-danger text-white',
+                                        'hombre'     => 'bg-primary text-white',
+                                        'niños'      => 'bg-success text-white',
+                                        'accesorios' => 'bg-warning text-dark',
+                                        default      => 'bg-secondary text-white'
+                                    };
+                                    ?>
+                                    <span class="badge <?= $catColor ?>"><?= htmlspecialchars($producto['categoria_nombre']) ?></span>
+                                </td>
+
+                                <td>
+                                    <?= $producto['en_oferta'] ? '<span class="badge bg-success">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?>
+                                </td>
+
+                                <td>
+                                    <?= $producto['vip'] ? '<span class="badge bg-success text-dark">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?>
+                                </td>
+
+                                <td><?= htmlspecialchars($producto['talles']) ?></td>
+                                <td><?= htmlspecialchars($producto['colores']) ?></td>
+
+                                <td>
+                                    <form method="POST" class="d-flex gap-1">
+                                        <input type="hidden" name="txtID" value="<?= $producto['id'] ?>">
+                                        <button type="submit" name="accion" value="Seleccionar" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="submit" name="accion" value="Borrar" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro desea eliminar el producto <?= htmlspecialchars($producto['nombre']) ?> (ID: <?= $producto['id'] ?>)?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                        </tbody>
                     </table>
                 </div>
-
-                <!-- NAVEGACIÓN DE PAGINACIÓN -->
-                <?php if ($totalPaginas > 1): ?>
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center">
-
-                            <?php if ($paginaActual > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual - 1 ?>">
-                                        <i class="fas fa-chevron-left"></i> Anterior
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php
-                            $inicioPag = max(1, $paginaActual - 2);
-                            $finPag    = min($totalPaginas, $paginaActual + 2);
-
-                            for ($i = $inicioPag; $i <= $finPag; $i++):
-                            ?>
-                                <li class="page-item <?= $i == $paginaActual ? 'active' : '' ?>">
-                                    <a class="page-link bg-dark text-white" href="?pagina=<?= $i ?>">
-                                        <?= $i ?>
-                                    </a>
-                                </li>
-                            <?php endfor; ?>
-
-                            <?php if ($paginaActual < $totalPaginas): ?>
-                                <li class="page-item">
-                                    <a class="page-link bg-dark text-white" href="?pagina=<?= $paginaActual + 1 ?>">
-                                        Siguiente <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                        </ul>
-                    </nav>
-
-                    <div class="text-center text-muted mt-2">
-                        Mostrando <?= count($productosPaginados) ?> de <?= $totalProductos ?> productos
-                        (Página <?= $paginaActual ?> de <?= $totalPaginas ?>)
-                    </div>
-                <?php endif; ?>
-
             </div>
         </div>
+
+        <!-- PAGINACIÓN -->
+        <?php if ($pagination['total_pages'] > 1): ?>
+        <nav aria-label="Navegación de productos">
+            <ul class="pagination justify-content-center">
+
+                <?php if ($pagination['has_prev']): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?pagina=<?= $pagination['current_page'] - 1 ?>">Anterior</a>
+                </li>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                    <li class="page-item <?= $i == $pagination['current_page'] ? 'active' : '' ?>">
+                        <a class="page-link" href="?pagina=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <?php if ($pagination['has_next']): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?pagina=<?= $pagination['current_page'] + 1 ?>">Siguiente</a>
+                </li>
+                <?php endif; ?>
+
+            </ul>
+        </nav>
+        <?php endif; ?>
+
     </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar búsqueda y filtros para esta tabla
-        if (typeof uxManager !== 'undefined') {
-            uxManager.inicializarBusquedaFiltros('tablaProductos');
-        }
-    });
-    function confirmarEliminacionProducto(id, nombre) {
-    return confirm(`¿Está seguro de que desea eliminar el producto "${nombre}" (ID: ${id})?`);
-}
-</script>
 
 <?php include('estructura/pie.php'); ?>

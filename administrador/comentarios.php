@@ -1,7 +1,6 @@
 <?php
 // administrador/comentarios.php
 include(__DIR__ . '/../config/bd.php');
-
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../login.php');
     exit();
@@ -31,25 +30,55 @@ switch ($accion) {
         $sentenciaSQL = $conexion->prepare("UPDATE comentarios SET estado = 'aprobado' WHERE id = :id");
         $sentenciaSQL->execute([':id' => $comentario_id]);
         break;
-
     case 'rechazar':
         $sentenciaSQL = $conexion->prepare("UPDATE comentarios SET estado = 'rechazado' WHERE id = :id");
         $sentenciaSQL->execute([':id' => $comentario_id]);
         break;
-
     case 'eliminar':
         $sentenciaSQL = $conexion->prepare("DELETE FROM comentarios WHERE id = :id");
         $sentenciaSQL->execute([':id' => $comentario_id]);
         break;
 }
 
-// Obtener comentarios
+/* ================================
+   NUEVO: FILTROS Y BÚSQUEDA
+================================ */
+$busquedaComentarios = $_GET['busqueda'] ?? '';
+$filtroEstadoComentarios = $_GET['estado'] ?? '';
+
+$whereConditionsComentarios = [];
+$paramsComentarios = [];
+
+if (!empty($busquedaComentarios)) {
+    $whereConditionsComentarios[] = "(c.nombre LIKE :busqueda 
+        OR c.email LIKE :busqueda 
+        OR c.comentario LIKE :busqueda 
+        OR p.titulo LIKE :busqueda)";
+    $paramsComentarios[':busqueda'] = "%" . $busquedaComentarios . "%";
+}
+
+if (!empty($filtroEstadoComentarios)) {
+    $whereConditionsComentarios[] = "c.estado = :estado";
+    $paramsComentarios[':estado'] = $filtroEstadoComentarios;
+}
+
+$whereClauseComentarios = !empty($whereConditionsComentarios)
+    ? "WHERE " . implode(" AND ", $whereConditionsComentarios)
+    : "";
+
+/* Obtener comentarios con filtros */
 $sentenciaSQL = $conexion->prepare("
     SELECT c.*, p.titulo as post_titulo 
     FROM comentarios c 
     LEFT JOIN posts p ON c.post_id = p.id 
+    $whereClauseComentarios
     ORDER BY c.fecha_creacion DESC
 ");
+
+foreach ($paramsComentarios as $key => $value) {
+    $sentenciaSQL->bindValue($key, $value, PDO::PARAM_STR);
+}
+
 $sentenciaSQL->execute();
 $comentarios = $sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
 
@@ -57,15 +86,59 @@ include('estructura/cabecera.php');
 ?>
 
 <div class="container-fluid py-4">
+
+    <!-- ================================
+         NUEVO: FORMULARIO DE FILTROS
+    ================================= -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" class="form-control" name="busqueda"
+                        value="<?= htmlspecialchars($busquedaComentarios) ?>"
+                        placeholder="Nombre, email, comentario o post...">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="pendiente" <?= $filtroEstadoComentarios == 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                        <option value="aprobado" <?= $filtroEstadoComentarios == 'aprobado' ? 'selected' : '' ?>>Aprobado</option>
+                        <option value="rechazado" <?= $filtroEstadoComentarios == 'rechazado' ? 'selected' : '' ?>>Rechazado</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                </div>
+
+                <?php if (!empty($busquedaComentarios) || !empty($filtroEstadoComentarios)): ?>
+                <div class="col-12">
+                    <a href="comentarios.php" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> Limpiar filtros
+                    </a>
+                    <small class="text-muted ms-2">
+                        <?= count($comentarios) ?> resultado(s) encontrado(s)
+                    </small>
+                </div>
+                <?php endif; ?>
+
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow">
         <div class="card-header bg-dark text-white">
             <h5 class="mb-0"><i class="fas fa-comments me-2"></i>GESTIÓN DE COMENTARIOS</h5>
         </div>
-
         <div class="card-body">
             <div class="table-responsive">
 
-                <table class="table table-striped" id="tablaComentarios">
+                <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
@@ -93,7 +166,7 @@ include('estructura/cabecera.php');
                                 <?php 
                                 $estados = [
                                     'pendiente' => 'warning',
-                                    'aprobado' => 'success',
+                                    'aprobado' => 'success', 
                                     'rechazado' => 'danger'
                                 ];
                                 $color = $estados[$comentario['estado']] ?? 'secondary';
@@ -104,44 +177,34 @@ include('estructura/cabecera.php');
                             <td>
                                 <div class="d-flex gap-1">
 
-                                    <!-- Aprobar -->
                                     <?php if($comentario['estado'] != 'aprobado'): ?>
-                                    <form method="POST">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
-                                        <button type="submit" name="accion" value="aprobar"
+                                        <form method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
+                                            <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
+                                            <button type="submit" name="accion" value="aprobar" 
                                                 class="btn btn-sm btn-success" title="Aprobar">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
                                     <?php endif; ?>
 
-                                    <!-- Rechazar -->
                                     <?php if($comentario['estado'] != 'rechazado'): ?>
-                                    <form method="POST">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
-                                        <button type="submit" name="accion" value="rechazar"
+                                        <form method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
+                                            <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
+                                            <button type="submit" name="accion" value="rechazar" 
                                                 class="btn btn-sm btn-warning" title="Rechazar">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
                                     <?php endif; ?>
 
-                                    <!--  Eliminar con data attributes agregados -->
                                     <form method="POST">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
                                         <input type="hidden" name="comentario_id" value="<?= $comentario['id'] ?>">
-
-                                        <button type="submit" 
-                                                name="accion" 
-                                                value="eliminar"
-                                                class="btn btn-sm btn-danger"
-                                                title="Eliminar"
-                                                onclick="return confirm('¿Eliminar este comentario?')"
-
-                                                data-nombre="comentario"
-                                                data-id="<?= $comentario['id'] ?>">
+                                        <button type="submit" name="accion" value="eliminar" 
+                                            class="btn btn-sm btn-danger" title="Eliminar"
+                                            onclick="return confirm('¿Eliminar este comentario?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -153,18 +216,10 @@ include('estructura/cabecera.php');
                     </tbody>
 
                 </table>
+
             </div>
         </div>
     </div>
 </div>
-
-<!-- Script agregado -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof uxManager !== 'undefined') {
-        uxManager.inicializarBusquedaFiltros('tablaComentarios');
-    }
-});
-</script>
 
 <?php include('estructura/pie.php'); ?>

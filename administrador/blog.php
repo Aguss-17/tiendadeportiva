@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Variables del formulario
+// VARIABLES FORMULARIO
 $txtID = $_POST['txtID'] ?? "";
 $txtTitulo = $_POST['txtTitulo'] ?? "";
 $txtContenido = $_POST['txtContenido'] ?? "";
@@ -17,12 +17,13 @@ $txtEstado = $_POST['txtEstado'] ?? "borrador";
 $txtDestacado = $_POST['txtDestacado'] ?? 0;
 $txtAccion = $_POST['accion'] ?? "";
 $txtImagenActual = $_POST['imagen_actual'] ?? "";
+$mensajeError = "";
 
-// Procesamiento de imagen usando el handler
+$directorioUploads = dirname(__DIR__) . '/img/posts/';
+
+// PROCESAR IMAGEN
 include(__DIR__ . '/../config/subida_imagen.php');
 $nombreImagen = $txtImagenActual;
-$mensajeError = "";
-$directorioUploads = dirname(__DIR__) . '/img/posts/';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen'])) {
     $uploadResult = handleImageUpload($_FILES['imagen'], $directorioUploads, $txtImagenActual);
@@ -32,17 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen'])) {
     }
 }
 
-// CRUD
+// CRUD + LIMPIEZA DE CACHE
 switch ($txtAccion) {
 
     case "Agregar":
+        clearProductCache();
         $txtMetaDescripcion = $_POST['txtMetaDescripcion'] ?? '';
 
-        $sentenciaSQL = $conexion->prepare(
-            "INSERT INTO posts 
-            (titulo, contenido, meta_description, imagen, autor, categoria, estado, destacado) 
-            VALUES (:titulo, :contenido, :meta_description, :imagen, :autor, :categoria, :estado, :destacado)"
-        );
+        $sentenciaSQL = $conexion->prepare("
+            INSERT INTO posts (titulo, contenido, meta_description, imagen, autor, categoria, estado, destacado) 
+            VALUES (:titulo, :contenido, :meta_description, :imagen, :autor, :categoria, :estado, :destacado)
+        ");
 
         $sentenciaSQL->execute([
             ':titulo' => $txtTitulo,
@@ -55,22 +56,19 @@ switch ($txtAccion) {
             ':destacado' => $txtDestacado
         ]);
 
-        // Limpia cache al agregar
-        $cache->delete('posts_lista_admin');
-
         header('Location: blog.php?success=1');
         exit();
 
-
     case "Modificar":
+        clearProductCache();
         $txtMetaDescripcion = $_POST['txtMetaDescripcion'] ?? '';
 
-        $sentenciaSQL = $conexion->prepare(
-            "UPDATE posts SET 
-            titulo=:titulo, contenido=:contenido, meta_description=:meta_description, imagen=:imagen,
-            autor=:autor, categoria=:categoria, estado=:estado, destacado=:destacado
-            WHERE id=:id"
-        );
+        $sentenciaSQL = $conexion->prepare("
+            UPDATE posts SET 
+                titulo=:titulo, contenido=:contenido, meta_description=:meta_description,
+                imagen=:imagen, autor=:autor, categoria=:categoria, estado=:estado, destacado=:destacado
+            WHERE id=:id
+        ");
 
         $sentenciaSQL->execute([
             ':titulo' => $txtTitulo,
@@ -84,12 +82,8 @@ switch ($txtAccion) {
             ':id' => $txtID
         ]);
 
-        // Limpia cache al modificar
-        $cache->delete('posts_lista_admin');
-
         header('Location: blog.php?success=1');
         exit();
-
 
     case "Seleccionar":
         $sentenciaSQL = $conexion->prepare("SELECT * FROM posts WHERE id=:id");
@@ -106,75 +100,84 @@ switch ($txtAccion) {
         $txtMetaDescripcion = $post['meta_description'];
         break;
 
+    case "Borrar":
+        clearProductCache();
 
-    // En la sección case "Borrar":
-case "Borrar":
-    error_log("Intentando borrar post con ID: " . $txtID);
+        $sentenciaSQL = $conexion->prepare("SELECT imagen FROM posts WHERE id=:id");
+        $sentenciaSQL->execute([':id' => $txtID]);
+        $post = $sentenciaSQL->fetch(PDO::FETCH_LAZY);
 
-    if (empty($txtID) || $txtID == 0) {
-        header('Location: blog.php?error=ID no válido');
-        exit();
-    }
-
-    // Verificar que el post existe
-    $sentenciaSQL = $conexion->prepare("SELECT imagen FROM posts WHERE id=:id");
-    $sentenciaSQL->execute([':id' => $txtID]);
-    $post = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
-
-    if (!$post) {
-        header('Location: blog.php?error=El post no existe');
-        exit();
-    }
-
-    // Eliminar imagen si existe
-    if (!empty($post['imagen']) && file_exists($directorioUploads . $post['imagen'])) {
-        if (!unlink($directorioUploads . $post['imagen'])) {
-            error_log("Error al eliminar imagen: " . $directorioUploads . $post['imagen']);
+        if (!empty($post['imagen']) && file_exists($directorioUploads . $post['imagen'])) {
+            @unlink($directorioUploads . $post['imagen']);
         }
-    }
 
-    // Eliminar el post
-    $sentenciaSQL = $conexion->prepare("DELETE FROM posts WHERE id=:id");
-    $sentenciaSQL->execute([':id' => $txtID]);
+        $sentenciaSQL = $conexion->prepare("DELETE FROM posts WHERE id=:id");
+        $sentenciaSQL->execute([':id' => $txtID]);
 
-    $filasAfectadas = $sentenciaSQL->rowCount();
-    error_log("Filas afectadas al borrar post: " . $filasAfectadas);
-
-    if ($filasAfectadas > 0) {
-        // Limpia cache al borrar
-        $cache->delete('posts_lista_admin');
         header('Location: blog.php?success=1');
-    } else {
-        header('Location: blog.php?error=No se pudo eliminar el post');
-    }
-    exit();
+        exit();
 }
 
+// PAGINACIÓN + FILTROS
+$paginaActual = $_GET['pagina'] ?? 1;
+$postsPorPagina = 20;
 
-// OPTIMIZACIÓN: OBTENER LISTA DE POSTS CON CACHE (15 min)
-$cacheKey = 'posts_lista_admin';
-$listaPosts = $cache->get($cacheKey, 900);
+// FILTROS PARA BLOG
+$busquedaBlog = $_GET['busqueda'] ?? '';
+$filtroCategoriaBlog = $_GET['categoria'] ?? '';
+$filtroEstado = $_GET['estado'] ?? '';
 
-if (!$listaPosts) {
+$whereConditionsBlog = [];
+$paramsBlog = [];
 
-    $sentenciaSQL = $conexion->prepare("
-        SELECT id, titulo, imagen, autor, categoria, estado, destacado, fecha_publicacion
-        FROM posts
-        ORDER BY fecha_publicacion DESC
-        LIMIT 100
-    ");
-    $sentenciaSQL->execute();
-
-    $listaPosts = $sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
-
-    // Guardar en cache 15 minutos
-    $cache->set($cacheKey, $listaPosts, 900);
+if (!empty($busquedaBlog)) {
+    $whereConditionsBlog[] = "(titulo LIKE :busqueda OR contenido LIKE :busqueda OR autor LIKE :busqueda)";
+    $paramsBlog[':busqueda'] = "%" . $busquedaBlog . "%";
 }
+
+if (!empty($filtroCategoriaBlog)) {
+    $whereConditionsBlog[] = "categoria = :categoria";
+    $paramsBlog[':categoria'] = $filtroCategoriaBlog;
+}
+
+if (!empty($filtroEstado)) {
+    $whereConditionsBlog[] = "estado = :estado";
+    $paramsBlog[':estado'] = $filtroEstado;
+}
+
+$whereClauseBlog = !empty($whereConditionsBlog) ? "WHERE " . implode(" AND ", $whereConditionsBlog) : "";
+
+// Total posts con filtros
+$totalPosts = $cache->cachedQuery(
+    $conexion,
+    "SELECT COUNT(*) as total FROM posts $whereClauseBlog",
+    $paramsBlog,
+    300
+)[0]['total'] ?? 0;
+
+$pagination = getPagination($totalPosts, $paginaActual, $postsPorPagina);
+
+// Obtener posts paginados filtrados
+$sqlPosts = "SELECT * FROM posts 
+            $whereClauseBlog
+            ORDER BY fecha_publicacion DESC 
+            LIMIT :limit OFFSET :offset";
+
+$sentenciaSQL = $conexion->prepare($sqlPosts);
+
+foreach ($paramsBlog as $key => $value) {
+    $sentenciaSQL->bindValue($key, $value, PDO::PARAM_STR);
+}
+
+$sentenciaSQL->bindValue(':limit', $postsPorPagina, PDO::PARAM_INT);
+$sentenciaSQL->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+$sentenciaSQL->execute();
+$listaPosts = $sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
 
 include('../administrador/estructura/cabecera.php');
 ?>
 
-<!-- Formulario -->
+<!-- Formulario principal -->
 <div class="row">
     <div class="col-md-5 mb-4 p-4">
         <div class="card shadow">
@@ -248,7 +251,7 @@ include('../administrador/estructura/cabecera.php');
 
                     <div class="mb-3">
                         <label class="form-label">Meta Descripción (SEO)</label>
-                        <textarea class="form-control" name="txtMetaDescripcion" rows="2" maxlength="255" placeholder="Descripción breve para motores de búsqueda (máx. 255 caracteres)"><?= htmlspecialchars($txtMetaDescripcion ?? '') ?></textarea>
+                        <textarea class="form-control" name="txtMetaDescripcion" rows="2" maxlength="255"><?= htmlspecialchars($txtMetaDescripcion ?? '') ?></textarea>
                         <small class="text-muted"><span id="contadorMeta">0</span>/255 caracteres</small>
                     </div>
 
@@ -261,7 +264,7 @@ include('../administrador/estructura/cabecera.php');
                             <button type="submit" name="accion" value="Modificar" class="btn btn-warning me-md-2">
                                 <i class="fas fa-save me-1"></i> Guardar
                             </button>
-                            <a href="posts.php" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
+                            <a href="blog.php" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
                         <?php else: ?>
                             <button type="submit" name="accion" value="Agregar" class="btn btn-success">
                                 <i class="fas fa-plus me-1"></i> Agregar
@@ -273,16 +276,75 @@ include('../administrador/estructura/cabecera.php');
         </div>
     </div>
 
-    <!-- Tabla de posts existentes -->
+    <!-- FILTROS PARA BLOG (HTML) -->
     <div class="col-md-7 p-4">
+
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <form method="GET" class="row g-3 align-items-end">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar</label>
+                        <input type="text" class="form-control" 
+                            name="busqueda" 
+                            value="<?= htmlspecialchars($busquedaBlog) ?>" 
+                            placeholder="Título, contenido o autor...">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Categoría</label>
+                        <select name="categoria" class="form-select">
+                            <option value="">Todas</option>
+                            <option value="Fitness" <?= $filtroCategoriaBlog == 'Fitness' ? 'selected' : '' ?>>Fitness</option>
+                            <option value="Nutrición" <?= $filtroCategoriaBlog == 'Nutrición' ? 'selected' : '' ?>>Nutrición</option>
+                            <option value="Entrenamiento" <?= $filtroCategoriaBlog == 'Entrenamiento' ? 'selected' : '' ?>>Entrenamiento</option>
+                            <option value="Promociones" <?= $filtroCategoriaBlog == 'Promociones' ? 'selected' : '' ?>>Promociones</option>
+                            <option value="General" <?= $filtroCategoriaBlog == 'General' ? 'selected' : '' ?>>General</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="publicado" <?= $filtroEstado == 'publicado' ? 'selected' : '' ?>>Publicado</option>
+                            <option value="borrador" <?= $filtroEstado == 'borrador' ? 'selected' : '' ?>>Borrador</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                    </div>
+
+                    <?php if (!empty($busquedaBlog) || !empty($filtroCategoriaBlog) || !empty($filtroEstado)): ?>
+                        <div class="col-12">
+                            <a href="blog.php" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Limpiar filtros
+                            </a>
+                            <small class="text-muted ms-2">
+                                <?= count($listaPosts) ?> resultado(s) encontrado(s)
+                            </small>
+                        </div>
+                    <?php endif; ?>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- TABLA DE POSTS NUMÉRICA -->
         <div class="card shadow">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-list me-2"></i>POSTS PUBLICADOS</h5>
-                <span class="badge bg-light text-dark">Total: <?= count($listaPosts) ?></span>
+                <span class="badge bg-light text-dark">Total: <?= $totalPosts ?></span>
             </div>
             <div class="card-body">
+
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle" id="tablaPosts">
+                    <table class="table table-striped table-hover">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
@@ -297,80 +359,94 @@ include('../administrador/estructura/cabecera.php');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($listaPosts as $post): ?>
-                                <tr>
-                                    <td><?= $post['id'] ?></td>
-                                    <td><?php if (!empty($post['imagen'])): ?><img src="../img/posts/<?= $post['imagen'] ?>" width="50" class="img-thumbnail"><?php endif; ?></td>
-                                    <td><?= htmlspecialchars($post['titulo']) ?></td>
-                                    <td><?= htmlspecialchars($post['autor']) ?></td>
-                                    <td><?= htmlspecialchars($post['categoria']) ?></td>
-                                    <td><?= $post['estado'] == 'publicado' ? '<span class="badge bg-success">Publicado</span>' : '<span class="badge bg-secondary">Borrador</span>' ?></td>
-                                    <td><?= $post['destacado'] == 1 ? '<span class="badge bg-warning">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?></td>
-                                    <td><?= date('d/m/Y', strtotime($post['fecha_publicacion'])) ?></td>
-                                    <td>
-                                        <div class="d-flex gap-2 align-items-center">
-                                            <form method="POST" class="d-inline">
-                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                <input type="hidden" name="txtID" value="<?= $post['id'] ?>">
-                                                <button type="submit" name="accion" value="Seleccionar" class="btn btn-sm btn-primary" title="Editar">
-                                                    <i class="fas fa-edit me-1"></i> Editar
-                                                </button>
-                                            </form>
-                                            <a href="vista_previa.php?id=<?= $post['id'] ?>" class="btn btn-sm btn-info" title="Previsualizar">
-                                                <i class="fas fa-eye me-1"></i> Ver
-                                            </a>
-                                            <form method="POST" class="d-inline" id="formEliminar_<?= $post['id'] ?>">
-                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                <input type="hidden" name="txtID" value="<?= $post['id'] ?>">
-                                                <button type="submit" name="accion" value="Borrar" class="btn btn-sm btn-danger" title="Eliminar"
-                                                    onclick="return confirmarEliminacion(<?= $post['id'] ?>, '<?= htmlspecialchars(addslashes($post['titulo'])) ?>')">
-                                                    <i class="fas fa-trash-alt me-1"></i> Eliminar
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
+                        <?php foreach ($listaPosts as $post): ?>
+                            <tr>
+                                <td><?= $post['id'] ?></td>
+                                <td>
+                                    <?php if (!empty($post['imagen'])): ?>
+                                        <img src="../img/posts/<?= $post['imagen'] ?>" width="50" class="img-thumbnail">
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($post['titulo']) ?></td>
+                                <td><?= htmlspecialchars($post['autor']) ?></td>
+                                <td><?= htmlspecialchars($post['categoria']) ?></td>
+                                <td><?= $post['estado'] == 'publicado' ? '<span class="badge bg-success">Publicado</span>' : '<span class="badge bg-secondary">Borrador</span>' ?></td>
+                                <td><?= $post['destacado'] == 1 ? '<span class="badge bg-warning">Sí</span>' : '<span class="badge bg-secondary">No</span>' ?></td>
+                                <td><?= date('d/m/Y', strtotime($post['fecha_publicacion'])) ?></td>
+                                <td>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <form method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                            <input type="hidden" name="txtID" value="<?= $post['id'] ?>">
+                                            <button type="submit" name="accion" value="Seleccionar" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit me-1"></i> Editar
+                                            </button>
+                                        </form>
+
+                                        <a href="vista_previa.php?id=<?= $post['id'] ?>" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye me-1"></i> Ver
+                                        </a>
+
+                                        <form method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                            <input type="hidden" name="txtID" value="<?= $post['id'] ?>">
+                                            <button type="submit" name="accion" value="Borrar" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este post?')">
+                                                <i class="fas fa-trash-alt me-1"></i> Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- PAGINACIÓN -->
+                <nav>
+                    <ul class="pagination justify-content-center">
+
+                        <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                            <li class="page-item <?= $i == $paginaActual ? 'active' : '' ?>">
+                                <a class="page-link"
+                                    href="?pagina=<?= $i ?>&busqueda=<?= urlencode($busquedaBlog) ?>&categoria=<?= urlencode($filtroCategoriaBlog) ?>&estado=<?= urlencode($filtroEstado) ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                    </ul>
+                </nav>
+
             </div>
         </div>
+
     </div>
 </div>
 
-<script>
-    CKEDITOR.replace('txtContenido', {
-        toolbar: [
-            ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript'],
-            ['NumberedList', 'BulletedList', '-', 'Blockquote'],
-            ['Link', 'Unlink'],
-            ['Undo', 'Redo', '-', 'RemoveFormat'],
-            ['Source']
-        ],
-        height: 300,
-        allowedContent: true
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const textarea = document.querySelector('[name="txtMetaDescripcion"]');
-        const contador = document.getElementById('contadorMeta');
-
-        textarea.addEventListener('input', function() {
-            contador.textContent = this.value.length;
-        });
-
-        contador.textContent = textarea.value.length;
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar búsqueda y filtros para esta tabla
-        if (typeof uxManager !== 'undefined') {
-            uxManager.inicializarBusquedaFiltros('tablaPosts');
-        }
-    });
-</script>
-
-
 <?php include('../administrador/estructura/pie.php'); ?>
+
+<script>
+CKEDITOR.replace('txtContenido', {
+    toolbar: [
+        ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript'],
+        ['NumberedList', 'BulletedList', '-', 'Blockquote'],
+        ['Link', 'Unlink'],
+        ['Undo', 'Redo', '-', 'RemoveFormat'],
+        ['Source']
+    ],
+    height: 300,
+    allowedContent: true
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('[name="txtMetaDescripcion"]');
+    const contador = document.getElementById('contadorMeta');
+
+    textarea.addEventListener('input', function() {
+        contador.textContent = this.value.length;
+    });
+
+    contador.textContent = textarea.value.length;
+});
+</script>

@@ -1,5 +1,4 @@
 <?php
-// Sistema de caché
 class SimpleCache {
     private $cacheDir;
     
@@ -38,9 +37,9 @@ class SimpleCache {
         return count($files);
     }
 
-    // Método helper para consultas cacheadas
-    public function cachedQuery($conexion, $sql, $params = [], $ttl = 1800) {
-        $key = $sql . serialize($params);
+    // Método mejorado para consultas cacheadas con paginación
+    public function cachedQuery($conexion, $sql, $params = [], $ttl = 1800, $pagination = false) {
+        $key = $sql . serialize($params) . ($pagination ? '_page' : '');
         
         if ($cached = $this->get($key, $ttl)) {
             return $cached;
@@ -58,6 +57,14 @@ class SimpleCache {
             return [];
         }
     }
+
+    // Nuevo método para paginación cacheada
+    public function cachedPagination($conexion, $baseSql, $params = [], $page = 1, $perPage = 20) {
+        $offset = ($page - 1) * $perPage;
+        $pagedSql = $baseSql . " LIMIT $perPage OFFSET $offset";
+        
+        return $this->cachedQuery($conexion, $pagedSql, $params, 300); // 5 min cache
+    }
 }
 
 // Instancia global
@@ -66,7 +73,86 @@ $cache = new SimpleCache();
 // Función para limpiar caché cuando se modifican datos
 function clearProductCache() {
     global $cache;
-    // Limpiar todo el caché (simple pero efectivo)
     $cache->clear();
+}
+
+// Función helper para paginación
+function getPagination($totalItems, $currentPage = 1, $perPage = 20) {
+    $totalPages = ceil($totalItems / $perPage);
+    
+    return [
+        'current_page' => $currentPage,
+        'per_page' => $perPage,
+        'total_items' => $totalItems,
+        'total_pages' => $totalPages,
+        'offset' => ($currentPage - 1) * $perPage,
+        'has_prev' => $currentPage > 1,
+        'has_next' => $currentPage < $totalPages
+    ];
+}
+
+// Función para generar clave de caché para búsquedas
+function generateSearchKey($base, $filters) {
+    $filterString = '';
+    foreach ($filters as $key => $value) {
+        if (!empty($value)) {
+            $filterString .= "{$key}={$value}&";
+        }
+    }
+    return $base . '?' . rtrim($filterString, '&');
+}
+
+// Función para búsquedas cacheadas
+function cachedSearch($conexion, $baseSql, $filters = [], $ttl = 300) {
+    global $cache;
+    $key = generateSearchKey($baseSql, $filters);
+    return $cache->cachedQuery($conexion, $buildSearchQuery($baseSql, $filters), $filters, $ttl);
+}
+
+// Función para construir consultas con filtros
+function buildSearchQuery($baseSql, $filters) {
+    $whereConditions = [];
+    $params = [];
+    
+    foreach ($filters as $key => $value) {
+        if (!empty($value)) {
+            switch ($key) {
+                case 'busqueda':
+                    $whereConditions[] = "(nombre LIKE :busqueda OR descripcion LIKE :busqueda)";
+                    $params[':busqueda'] = "%$value%";
+                    break;
+                case 'categoria':
+                    $whereConditions[] = "id_categoria = :categoria";
+                    $params[':categoria'] = $value;
+                    break;
+                case 'estado':
+                    $whereConditions[] = "estado = :estado";
+                    $params[':estado'] = $value;
+                    break;
+                case 'oferta':
+                    $whereConditions[] = "en_oferta = :oferta";
+                    $params[':oferta'] = $value;
+                    break;
+                case 'vip':
+                    $whereConditions[] = "vip = :vip";
+                    $params[':vip'] = $value;
+                    break;
+                case 'fecha_desde':
+                    $whereConditions[] = "fecha_creacion >= :fecha_desde";
+                    $params[':fecha_desde'] = $value;
+                    break;
+                case 'fecha_hasta':
+                    $whereConditions[] = "fecha_creacion <= :fecha_hasta";
+                    $params[':fecha_hasta'] = $value;
+                    break;
+            }
+        }
+    }
+    
+    if (!empty($whereConditions)) {
+        $baseSql .= " WHERE " . implode(" AND ", $whereConditions);
+    }
+    
+    return ['sql' => $baseSql, 'params' => $params];
 }
 ?>
