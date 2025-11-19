@@ -105,8 +105,9 @@ function generateSearchKey($base, $filters) {
 // Función para búsquedas cacheadas
 function cachedSearch($conexion, $baseSql, $filters = [], $ttl = 300) {
     global $cache;
+    $builtQuery = buildSearchQuery($baseSql, $filters); // Corregido aquí
     $key = generateSearchKey($baseSql, $filters);
-    return $cache->cachedQuery($conexion, $buildSearchQuery($baseSql, $filters), $filters, $ttl);
+    return $cache->cachedQuery($conexion, $builtQuery['sql'], $builtQuery['params'], $ttl);
 }
 
 // Función para construir consultas con filtros
