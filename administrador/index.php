@@ -8,7 +8,7 @@ if (!isset($_SESSION['intentos_login'])) {
 
 // Configurar límite de intentos
 $limite_intentos = 5;
-$bloqueo_tiempo = 300; // 5 minutos (en segundos)
+$bloqueo_tiempo = 300;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Verificar si el usuario está bloqueado
@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         unset($_SESSION['bloqueo_hasta']);
         $_SESSION['intentos_login'] = 0;
         
-        // Sanitizar entradas (versión segura y moderna)
+        // Sanitizar entradas
         $usuario = htmlspecialchars(strip_tags(trim($_POST['usuario'] ?? '')), ENT_QUOTES, 'UTF-8');
         $contrasenia = trim($_POST['contrasenia'] ?? '');
         

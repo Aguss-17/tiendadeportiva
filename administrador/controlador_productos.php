@@ -133,7 +133,6 @@ $totalProductos = $cache->cachedQuery(
 // Datos de paginación calculados
 $pagination = getPagination($totalProductos, $paginaActual, $productosPorPagina);
 
-// Traer productos paginados con cache
 $listaProductos = $cache->cachedPagination(
     $conexion,
     "SELECT p.*, c.nombre AS categoria_nombre

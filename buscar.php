@@ -27,7 +27,7 @@ if (empty($busqueda)) {
             $resultados = $resultadosCache['resultados'];
             $totalResultados = $resultadosCache['total'];
         } else 
-            // CONSULTA OPTIMIZADA - Sin SOUNDEX que es muy lento
+            // CONSULTA OPTIMIZADA
             $sqlCount = "SELECT COUNT(*) as total 
                         FROM productos p
                         JOIN categorias c ON p.id_categoria = c.id

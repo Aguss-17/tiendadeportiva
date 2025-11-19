@@ -1,12 +1,11 @@
 /* ESTILOS GENERALES DE LA TIENDA */
-
 .card-product {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: none; /* Sin borde */
-    background-color: transparent; /* Más profesional */
+    border: none; 
+    background-color: transparent;
 }
 
 .card-product:hover {
@@ -14,13 +13,12 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
 
-/* Pagiación */
+/* Paginación */
 .pagination .active .page-link {
     background-color: #000;
     border-color: #000;
     color: #fff;
 }
-
 .pagination .page-link:hover {
     background-color: #333;
     color: #fff;
@@ -28,12 +26,11 @@
 
 /* Imagen producto */
 .img-product {
-    height: 350px; /* Imagen más grande */
+    height: 350px;
     object-fit: cover;
-    border-radius: 8px; /* Bordes suaves */
+    border-radius: 8px;
     transition: transform 0.3s ease;
 }
-
 .card-product:hover .img-product {
     transform: scale(1.05);
 }
@@ -146,7 +143,6 @@
 }
 
 /* ESTILOS RESPONSIVOS */
-
 /* Responsivo para móviles */
 @media (max-width: 576px) {
     .boton-carrusel .btn {
@@ -168,7 +164,6 @@
 }
 
 /* ESTILOS ESPECÍFICOS PARA INFOEMPRESA.PHP */
-
 .infoempresa-container {
     background: rgba(255, 255, 255, 0.95) !important;
     border-radius: 20px !important;
@@ -357,7 +352,7 @@
     border-radius: 0 0 15px 15px !important;
 }
 
-/* ===== ESTILOS ESPECÍFICOS PARA MAS_INFO.PHP ===== */
+/* ESTILOS ESPECÍFICOS PARA MAS_INFO.PHP */
 
 .masinfo-container {
     background: rgba(255, 255, 255, 0.95) !important;

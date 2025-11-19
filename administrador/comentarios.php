@@ -1,5 +1,4 @@
 <?php
-// administrador/comentarios.php
 include(__DIR__ . '/../config/bd.php');
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../login.php');
@@ -40,9 +39,7 @@ switch ($accion) {
         break;
 }
 
-/* ================================
-   NUEVO: FILTROS Y BÚSQUEDA
-================================ */
+/* FILTROS Y BÚSQUEDA */
 $busquedaComentarios = $_GET['busqueda'] ?? '';
 $filtroEstadoComentarios = $_GET['estado'] ?? '';
 
@@ -87,9 +84,7 @@ include('estructura/cabecera.php');
 
 <div class="container-fluid py-4">
 
-    <!-- ================================
-         NUEVO: FORMULARIO DE FILTROS
-    ================================= -->
+    <!-- FORMULARIO DE FILTROS -->
     <div class="card mb-3">
         <div class="card-body">
             <form method="GET" class="row g-3 align-items-end">

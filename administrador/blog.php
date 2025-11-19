@@ -276,7 +276,7 @@ include('../administrador/estructura/cabecera.php');
         </div>
     </div>
 
-    <!-- FILTROS PARA BLOG (HTML) -->
+    <!-- FILTROS PARA BLOG -->
     <div class="col-md-7 p-4">
 
         <div class="card mb-3">

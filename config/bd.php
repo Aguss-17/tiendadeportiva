@@ -5,7 +5,7 @@ header("X-Content-Type-Options: nosniff");
 header("X-XSS-Protection: 1; mode=block");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 
-// Iniciar sesión solo si no está activa - CORREGIDO
+// Iniciar sesión solo si no está activa 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -32,7 +32,7 @@ function enviarEmailVerificacion($email, $token, $nombre) {
         $mail->isHTML(true);
         $mail->Subject = 'Verifica tu cuenta - Aura Sport';
         
-        // URL CORREGIDA - asumiendo que tu sitio está en la raíz
+        // URL CORREGIDA
         $enlace_verificacion = "http://" . $_SERVER['HTTP_HOST'] . "/registro.php?token=" . $token;
         
         $mail->Body = "
@@ -61,7 +61,7 @@ function enviarEmailVerificacion($email, $token, $nombre) {
     }
 }
 
-// FUNCIÓN PARA RECUPERACIÓN DE CONTRASEÑA - CORREGIDA
+// FUNCIÓN PARA RECUPERACIÓN DE CONTRASEÑA
 function enviarEmailRecuperacion($email, $token, $nombre) {
     $mail = new PHPMailer(true);
     

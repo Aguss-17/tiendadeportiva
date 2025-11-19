@@ -6,7 +6,7 @@ class ModeloForo {
         $this->conexion = $conexion;
     }
 
-    // --- CATEGORÍAS ---
+    // CATEGORÍAS
     public function obtenerCategorias() {
         $stmt = $this->conexion->prepare("SELECT * FROM foro_categorias ORDER BY nombre ASC");
         $stmt->execute();
@@ -60,7 +60,7 @@ class ModeloForo {
         return $stmt->execute([$valor, $id]);
     }
 
-    // --- RESPUESTAS ---
+    // RESPUESTAS
     public function obtenerRespuestas() {
         $sql = "SELECT r.*, u.usuario, t.titulo as tema_titulo
                 FROM foro_respuestas r 

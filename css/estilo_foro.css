@@ -2,11 +2,9 @@
 .foro-stats .card {
     transition: transform 0.2s ease;
 }
-
 .foro-stats .card:hover {
     transform: translateY(-2px);
 }
-
 .breadcrumb {
     background-color: transparent;
     padding: 0;
@@ -16,7 +14,6 @@
 .tema-respuesta {
     border-left: 3px solid var(--primary-brown);
 }
-
 .tema-anclado {
     background-color: rgba(187, 28, 81, 0.1);
 }

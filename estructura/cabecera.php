@@ -4,12 +4,12 @@ $root = $protocol . "://" . $_SERVER['HTTP_HOST'];
 
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 
-// Detectar carpeta real del proyecto (si está en subcarpeta de AlwaysData)
+// Detectar carpeta real del proyecto
 $pathParts = explode('/', trim($scriptDir, '/'));
 $baseFolder = $pathParts[0] ?? '';
 
 if ($baseFolder && $baseFolder !== 'menu' && $baseFolder !== 'informacion' && $baseFolder !== 'carrito' && $baseFolder !== 'administrador') {
-    // Proyecto dentro de una carpeta (ej: /aura-sport)
+    // Proyecto dentro de una carpeta
     $basePath = '/' . $baseFolder;
 } else {
     // Proyecto en la raíz
